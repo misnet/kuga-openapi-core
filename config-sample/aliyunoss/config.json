@@ -1,0 +1,21 @@
+{
+    "AccessKeyId": "",
+    "AccessKeySecret": "",
+    "RoleArn": "acs:ram::31471537:role/aliyunkuga",
+    "TokenExpireTime": "3600",
+    "PolicyFile": "policy-all.txt",
+
+    "RoleSessionName": "aliyunKuga",
+    "Bucket": {
+        "Region": "cn-qingdao",
+        "Name": "donytest",
+        "Endpoint": "oss-cn-qingdao.aliyuncs.com",
+        "Host": "https://donytest.oss-cn-qingdao.aliyuncs.com"
+    },
+    "TestBucket": {
+        "Region": "cn-qingdao",
+        "Name": "donytest",
+        "Endpoint": "oss-cn-qingdao.aliyuncs.com",
+        "Host": "https://donytest.oss-cn-qingdao.aliyuncs.com"
+    }
+}

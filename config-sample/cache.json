@@ -1,0 +1,21 @@
+{
+    "slow":{
+        "engine":"file",
+        "option":{
+            "cacheDir":"/tmp",
+            "lifetime":86400
+        }
+    },
+    "fast":{
+        "engine":"redis",
+        "option":{
+            "host":"redis",
+            "port":"6379",
+            "auth":"",
+            "index":0,
+            "prefix":"kg_",
+            "lifetime":3600
+        }
+
+    }
+}

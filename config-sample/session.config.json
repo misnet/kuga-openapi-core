@@ -1,0 +1,10 @@
+{
+  "enabled":true,
+  "adapter":"redis", //redis|file
+  "option":{
+    "uniqueId":"KG_",
+    "persistent":false,
+    "prefix":"se_",
+    "index":2  //适用于redis
+  }
+}

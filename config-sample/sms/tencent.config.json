@@ -1,0 +1,12 @@
+{
+  "appId": "",
+  "appSecret": "",
+  "signName": "测试",
+  "productName": "测试",
+  "template": {
+    "changePasswd": "41681",
+    "register": "41682",
+    "verify": "41683",
+    "devops": "41684"
+  }
+}
