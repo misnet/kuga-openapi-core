@@ -353,19 +353,17 @@ abstract class AbstractApi extends AbstractService
 //        return false;
 //    }
 
-    protected function apiRequest($method,$params){
+    protected function apiRequest($method,$params,$hostUrl,$path){
 
         $params['appkey'] = $this->getAppKey();
         $secret = $this->getAppSecret();
         $params['access_token'] = $this->_accessToken;
         $params['method'] = $method;
         $params['sign']   = Request::createSign($secret, $params);
-
-
         $provider = HttpClientRequest::getProvider();
-        $provider->setBaseUri('http://api.kuga.wang/');
+        $provider->setBaseUri($hostUrl);
         $provider->header->set('Accept', 'application/json');
-        $response = $provider->post('/v3/gateway', $params);
+        $response = $provider->post($path, $params);
         return $response->body;
     }
 }

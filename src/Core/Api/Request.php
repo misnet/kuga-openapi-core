@@ -84,7 +84,6 @@ class Request
 
         $data = $this->_unset('sign', $data);
         $sign = self::createSign($secret, $data);
-
         return $sign === $requestSign;
     }
 
@@ -103,6 +102,9 @@ class Request
         $sign = $secret;
         ksort($params);
         foreach ($params as $k => $v) {
+            if($v === null){
+                continue;
+            }
             if ( ! is_array($v) && ! is_object($v)) {
                 $sign .= $k.$v;
             }else{

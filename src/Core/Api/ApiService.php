@@ -119,7 +119,6 @@ class ApiService
                 if ( ! $req->validate(self::$_appSecret)) {
                     // 无效的加密传参
 
-                    $requestSign = $req->getSign();
                     $data        = $req->getData();
                     unset($data['sign']);
                     $sign = $req::createSign(self::$_appSecret, $data);
@@ -128,8 +127,13 @@ class ApiService
                     $signLong = self::$_appSecret;
                     ksort($data);
                     foreach ($data as $k => $v) {
+                        if($v === null){
+                            continue;
+                        }
                         if ( ! is_array($v) && ! is_object($v)) {
                             $signLong .= $k.$v;
+                        }else{
+                            $signLong .= $k.json_encode($v,JSON_UNESCAPED_UNICODE);
                         }
                     }
                     $signLong        .= self::$_appSecret;
@@ -149,7 +153,7 @@ class ApiService
             }
         } catch (\Exception $e) {
             self::$di->getShared('eventsManager')->fire('qing:errorHappen', $e);
-            $debugMsg = $config->debug ? $debugMsg = $e->getTraceAsString() : '';
+            $debugMsg = $e->getTraceAsString();
 
             return self::_responseError(
                 $e->getCode(), self::$di->getShared('translator')->_('服务器开小差了，稍候片刻'), $debugMsg
@@ -476,7 +480,7 @@ class ApiService
         $time += time();
         $data = ['data' => $data, 'time' => $time];
         $data = serialize($data);
-        $txt  = $crypt->encryptBase64($data, md5(self::$_appKey));
+        $txt  = $crypt->encryptBase64($data, md5(self::$_appKey),true);
 
         return $txt;
     }
@@ -493,7 +497,7 @@ class ApiService
     {
         $crypt = new \Phalcon\Crypt();
         $time || $time = time();
-        $txt  = $crypt->decryptBase64($data, md5(self::$_appKey));
+        $txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
         $data = @unserialize($txt);
         if ($time <= $data['time']) {
             return $data['data'];
@@ -539,7 +543,9 @@ class ApiService
             self::beforeResponse($result);
         } catch (\Exception $e) {
         }
-        if ($debugMsg) {
+
+        $config = self::$di->get('config');
+        if ($debugMsg && $config->debug) {
             $result['debug'] = $debugMsg;
         }
 
