@@ -39,7 +39,6 @@ class Init
         if(!file_exists(self::$tmpDir)){
             mkdir(self::$tmpDir,'0777',true);
         }
-
         //metadata用到
         if(!file_exists(self::$tmpDir.'/meta')){
             mkdir(self::$tmpDir.'/meta',0777,true);

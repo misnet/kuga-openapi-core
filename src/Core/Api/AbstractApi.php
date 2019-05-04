@@ -77,7 +77,6 @@ abstract class AbstractApi extends AbstractService
 
     protected $_accessTokenUserIdKey = 'uid';
 
-    
 
     public function validateAppKey(){
         $cacheId = GlobalVar::APPLIST_CACHE_ID;
@@ -171,11 +170,17 @@ abstract class AbstractApi extends AbstractService
         $this->_method = $method;
         if ($this->_accessToken && $this->_accessTokenRequiredLevel > 0) {
             $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
-
         }
         $this->_testModel = $this->_di->get('config')->get('testmodel');
     }
 
+    /**
+     * 调用API响应方法之前要处理的内容
+     * 增加此空方法，方便子对类根据需要进行响应之前的预处理
+     */
+    public function beforeInvoke(){
+
+    }
     /**
      * 取得当前用户的ID
      *

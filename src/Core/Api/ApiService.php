@@ -435,6 +435,7 @@ class ApiService
                 $modObj->setAppSecret($req->getAppSecret());
                 $modObj->setVersion($version);
                 $modObj->setLocale($locale);
+                $modObj->beforeInvoke();
                 self::$apiLoggerService->setAccessMemberId(
                     self::$invokeId, $modObj->getUserMemberId()
                 );
