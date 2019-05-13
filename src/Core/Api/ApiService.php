@@ -481,7 +481,9 @@ class ApiService
         $time += time();
         $data = ['data' => $data, 'time' => $time];
         $data = serialize($data);
-        $txt  = $crypt->encryptBase64($data, md5(self::$_appKey),true);
+
+        //$txt  = $crypt->encryptBase64($data, md5(self::$_appKey),true);
+        $txt  = $crypt->cryptData($data, md5("github.com/misnet"),true);
 
         return $txt;
     }
@@ -498,8 +500,10 @@ class ApiService
     {
         $crypt = new \Phalcon\Crypt();
         $time || $time = time();
-        $txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
-        $data = @unserialize($txt);
+        //为保证一个accessToken在所有系统中通用，不能以appKey作为加密KEY
+        //$txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
+        $txt  = $crypt->decryptBase64($data, md5("github.com/misnet"),true);
+        $data = unserialize($txt);
         if ($time <= $data['time']) {
             return $data['data'];
         } else {
