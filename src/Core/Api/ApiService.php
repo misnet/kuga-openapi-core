@@ -483,7 +483,7 @@ class ApiService
         $data = serialize($data);
 
         //$txt  = $crypt->encryptBase64($data, md5(self::$_appKey),true);
-        $txt  = $crypt->cryptData($data, md5("github.com/misnet"),true);
+        $txt  = $crypt->encryptBase64($data, md5("github.com/misnet"),true);
 
         return $txt;
     }
