@@ -543,7 +543,7 @@ class ApiService
             $msg = ApiException::getExMsg($code);
         }
 
-        $result = ['status' => $code, 'data' => $msg];
+        $result = ['status' => $code, 'data' => $msg, 'message'=>$msg];
         try {
             self::beforeResponse($result);
         } catch (\Exception $e) {
