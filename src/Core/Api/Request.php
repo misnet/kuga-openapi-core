@@ -108,7 +108,7 @@ class Request
             if ( ! is_array($v) && ! is_object($v)) {
                 $sign .= $k.$v;
             }else{
-                $sign .= $k.json_encode($v,JSON_UNESCAPED_UNICODE);
+                $sign .= $k.json_encode($v,JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES);
             }
         }
         $sign .= $secret;

@@ -133,10 +133,11 @@ class ApiService
                         if ( ! is_array($v) && ! is_object($v)) {
                             $signLong .= $k.$v;
                         }else{
-                            $signLong .= $k.json_encode($v,JSON_UNESCAPED_UNICODE);
+                            $signLong .= $k.json_encode($v,JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES);
                         }
                     }
                     $signLong        .= self::$_appSecret;
+
                     $data['LONG']    = $signLong;
                     $data['newSign'] = $sign;
 
