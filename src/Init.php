@@ -125,16 +125,21 @@ class Init
         //缓存对象纳入DI
         self::$di->setShared(
             'cache', function ($prefix = 'sp_') use ($config) {
-            $option = $config->cache->toArray();
-            if(isset($option['slow']) && $prefix){
-                $option['slow']['option']['prefix'] = $prefix;
-            }
-            if(isset($option['fast']) && $prefix){
-                $option['fast']['option']['prefix'] = $prefix;
-            }
-            $cache = new \Qing\Lib\Cache($option);
+                if(file_exists($config->cache)){
+                    $cacheConfigContent = file_get_contents($config->cache);
+                    $option = \json_decode($cacheConfigContent,true);
+                    if(isset($option['slow']) && $prefix){
+                        $option['slow']['option']['prefix'] = $prefix;
+                    }
+                    if(isset($option['fast']) && $prefix){
+                        $option['fast']['option']['prefix'] = $prefix;
+                    }
+                    $cache = new \Qing\Lib\Cache($option);
 
-            return $cache;
+                    return $cache;
+                }else{
+                    throw new \Exception('Cache file does not exists');
+                }
         }
         );
     }
@@ -321,8 +326,18 @@ class Init
         //NOSQL简单存储器
         $config = self::$config;
         self::$di->set('simpleStorage', function() use($config){
-            $redisConfig = $config->redis;
-            return new \Qing\Lib\SimpleStorage($redisConfig);
+            if(file_exists($config->cache)) {
+                $cacheConfigContent = file_get_contents($config->cache);
+                $option = \json_decode($cacheConfigContent, true);
+                if(strtolower($option['fast']['engine'])=='redis'){
+                    return new \Qing\Lib\SimpleStorage($option['fast']['option']);
+                }else{
+                    throw new \Exception('redis config does not exists');
+                }
+            }else{
+                throw new \Exception('Cache file does not exists');
+            }
+
         });
     }
 
