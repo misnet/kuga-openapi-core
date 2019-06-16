@@ -9,7 +9,7 @@ class FileService{
      * @param array $config
      * @param $di \Phalcon\DiInterface 
      * @throws Exception
-     * @return \Kuga\Service\File\FileAdapter
+     * @return \Kuga\Core\File\FileAdapter
      */
     public static function factory($adapter,$config=array(),$di=null){
 //        $loader = new \Phalcon\Loader();

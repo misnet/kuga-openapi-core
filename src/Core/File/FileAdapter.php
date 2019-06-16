@@ -41,8 +41,19 @@ abstract class FileAdapter extends AbstractService implements FileInterface
                 $t->_('文件大小超过%filesize%', ['filesize' => \Qing\Lib\Utils::generateFileSize($fileRequire->maxFilesize)])
             );
         }
-        if ($fileRequire->mimeTypePattern && ! preg_match($fileRequire->mimeTypePattern, $mimetype)) {
+        if ($fileRequire->mimeTypePattern && is_string($fileRequire->mimeTypePattern) && ! preg_match($fileRequire->mimeTypePattern, $mimetype)) {
             throw new ServiceException($t->_('不支持此类型文件上传'));
+        }elseif($fileRequire->mimeTypePattern && is_array($fileRequire->mimeTypePattern) && !empty($fileRequire->mimeTypePattern)){
+            $match = false;
+            foreach($fileRequire->mimeTypePattern as $pattern){
+                if(preg_match($pattern, $mimetype)){
+                    $match = true;
+                    break;
+                }
+            }
+            if(!$match){
+                throw new ServiceException($t->_('不支持此类型文件上传'));
+            }
         }
 
         return true;

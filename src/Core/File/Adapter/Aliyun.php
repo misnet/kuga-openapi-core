@@ -21,6 +21,7 @@ class Aliyun extends FileAdapter
      * @var array
      */
     private $productionEnvOption = [];
+    private $initConfigure = [];
 
     /**
      * options有两项configFile和policyFile
@@ -29,42 +30,47 @@ class Aliyun extends FileAdapter
     public function initOption($options)
     {
         $config = $options;
-        if (file_exists($config['configFile'])) {
-            $configContent = file_get_contents($config['configFile']);
-            $configJson    = json_decode($configContent, true);
-            $key     = 'Bucket';
-            $testKey = 'TestBucket';
-
-            $option['accessKeyId']     = $configJson['AccessKeyId'];
-            $option['accessKeySecret'] = $configJson['AccessKeySecret'];
-            $option['roleArn']         = $configJson['RoleArn'];
-            $option['tokenExpireTime'] = $configJson['TokenExpireTime'];
-            $option['roleSessionName'] = $configJson['RoleSessionName'];
-
-            $option['bucket']['endpoint']        = $configJson[$key]['Endpoint'];
-            $option['bucket']['name']            = $configJson[$key]['Name'];
-            $option['bucket']['hostUrl']         = $configJson[$key]['Host'];
-            $option['bucket']['region']          = $configJson[$key]['Region'];
-            if (file_exists($config['policyFile'])) {
-                $option['policy'] = file_get_contents($config['policyFile']);
-            }
-            $this->option              = $option;
-            $this->productionEnvOption = $option;
-            if (isset($configJson[$testKey])) {
-                $testOption             = $option;
-                $testOption['bucket']['endpoint'] = $configJson[$testKey]['Endpoint'];
-                $testOption['bucket']['bucket']   = $configJson[$testKey]['Name'];
-                $testOption['bucket']['hostUrl']  = $configJson[$testKey]['Host'];
-                $testOption['bucket']['region']   = $configJson[$testKey]['Region'];
-                $this->developEvnOption = $testOption;
-            }
-            //测试|开发模式下用测试的选项
-            $conf = $this->_di->getShared('config');
-            if ($conf->testmodel && ! empty($this->developEvnOption)) {
-                $this->option = $this->developEvnOption;
-            }
+        $configFile = '';
+        if (file_exists($config['serverEndConfigFile'])) {
+            $configFile = $config['serverEndConfigFile'];
+        }elseif (file_exists($config['configFile'])) {
+            $configFile = $config['configFile'];
         }else{
             throw new ServiceException($this->translator->_('aliyun oss config file not exists'));
+        }
+
+        $configContent = file_get_contents($configFile);
+        $configJson    = json_decode($configContent, true);
+        $key     = 'Bucket';
+        $testKey = 'TestBucket';
+
+        $option['accessKeyId']     = $configJson['AccessKeyId'];
+        $option['accessKeySecret'] = $configJson['AccessKeySecret'];
+        $option['roleArn']         = $configJson['RoleArn'];
+        $option['tokenExpireTime'] = $configJson['TokenExpireTime'];
+        $option['roleSessionName'] = $configJson['RoleSessionName'];
+
+        $option['bucket']['endpoint']        = $configJson[$key]['Endpoint'];
+        $option['bucket']['name']            = $configJson[$key]['Name'];
+        $option['bucket']['hostUrl']         = $configJson[$key]['Host'];
+        $option['bucket']['region']          = $configJson[$key]['Region'];
+        if (file_exists($config['policyFile'])) {
+            $option['policy'] = file_get_contents($config['policyFile']);
+        }
+        $this->option              = $option;
+        $this->productionEnvOption = $option;
+        if (isset($configJson[$testKey])) {
+            $testOption             = $option;
+            $testOption['bucket']['endpoint'] = $configJson[$testKey]['Endpoint'];
+            $testOption['bucket']['bucket']   = $configJson[$testKey]['Name'];
+            $testOption['bucket']['hostUrl']  = $configJson[$testKey]['Host'];
+            $testOption['bucket']['region']   = $configJson[$testKey]['Region'];
+            $this->developEvnOption = $testOption;
+        }
+        //测试|开发模式下用测试的选项
+        $conf = $this->_di->getShared('config');
+        if ($conf->testmodel && ! empty($this->developEvnOption)) {
+            $this->option = $this->developEvnOption;
         }
     }
 
