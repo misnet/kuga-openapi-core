@@ -52,8 +52,8 @@ class ApiLogModel extends AbstractModel
     {
         parent::initialize();
         $config = $this->getDI()->getShared('config');
-        if ($config->dbRead->statsDbname) {
-            $this->setSchema($config->dbRead->statsDbname);
+        if ($config->dbwrite->statsDbname) {
+            $this->setSchema($config->dbwrite->statsDbname);
         }
     }
 
