@@ -312,7 +312,7 @@ class ApiService
                             ), ApiException::$EXCODE_PARAMMISS
                         );
                     } elseif ( ! isset($params[$key])
-                        && $requestItem['default']!==''
+                        && isset($requestItem['default']) && $requestItem['default']!==''
                         && isset($requestItem['type'])
                     ) {
                         //未传值但系统给了默认值和值的类型时，使用默认值

@@ -124,7 +124,7 @@ class Init
         $config = self::$config;
         //缓存对象纳入DI
         self::$di->setShared(
-            'cache', function ($prefix = 'sp_') use ($config) {
+            'cache', function ($prefix = '') use ($config) {
                 if(file_exists($config->cache)){
                     $cacheConfigContent = file_get_contents($config->cache);
                     $option = \json_decode($cacheConfigContent,true);
@@ -244,15 +244,16 @@ class Init
             ['updateSnapshotOnSave' => false,]
         );
 
+        if($config->debug){
+            $logger = new \Phalcon\Logger\Adapter\File(self::$tmpDir."/db.log");
 
-        $logger = new \Phalcon\Logger\Adapter\File(self::$tmpDir."/db.log");
-
-        $eventsManager->attach('db', function($event, $connection) use ($logger) {
-            if ($event->getType() == 'beforeQuery') {
-                $logger->log($connection->getSQLStatement(), \Phalcon\Logger::INFO);
-                $logger->log(print_r($connection->getSqlVariables(),true), \Phalcon\Logger::INFO);
-            }
-        });
+            $eventsManager->attach('db', function($event, $connection) use ($logger) {
+                if ($event->getType() == 'beforeQuery') {
+                    $logger->log($connection->getSQLStatement(), \Phalcon\Logger::INFO);
+                    $logger->log(print_r($connection->getSqlVariables(),true), \Phalcon\Logger::INFO);
+                }
+            });
+        }
     }
 
     /**
