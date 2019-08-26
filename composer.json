@@ -9,7 +9,8 @@
         "phalcon/incubator": "^3.4",
         "aliyuncs/oss-sdk-php": "~2.0",
         "qcloudsms/qcloudsms_php": "0.1.*",
-        "alibabacloud/client":">=1.0.7"
+        "alibabacloud/client":">=1.0.7",
+        "phpoffice/phpspreadsheet": "dev-master"
     },
     "autoload": {
         "psr-4": {

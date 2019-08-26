@@ -443,7 +443,8 @@ class ApiService
 
                 if ($action && $refObj->hasMethod($action)) {
                     //$modObj->validateAppKey();
-                    $result = $modObj->$action();
+                    //2019.8.26增加传参$validParams
+                    $result = $modObj->$action($validParams);
 
                     return self::_responseData($result);
                 } else {
