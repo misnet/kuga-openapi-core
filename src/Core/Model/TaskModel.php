@@ -70,7 +70,11 @@ class TaskModel extends  AbstractModel{
      * @var string
      */
     public $requestJson;
-
+    /**
+     * 任务名称
+     * @var string
+     */
+    public $name;
     public function getSource() {
         return 't_tasks';
     }
@@ -81,6 +85,7 @@ class TaskModel extends  AbstractModel{
 
         return  array (
             'id' => 'id',
+            'name'=>'name',
             'submit_time' => 'submitTime',
             'start_time' => 'startTime',
             'end_time' => 'endTime',

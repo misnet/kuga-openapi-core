@@ -191,6 +191,10 @@ abstract class AbstractApi extends AbstractService
         return $this->_userMemberId;
     }
 
+    public function setUserMemberId($uid){
+        $this->_userMemberId = $uid;
+    }
+
     /**
      * 取得传进来的参数数组
      *

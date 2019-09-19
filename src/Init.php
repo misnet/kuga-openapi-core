@@ -44,6 +44,14 @@ class Init
             mkdir(self::$tmpDir.'/meta',0777,true);
         }
     }
+
+    /**
+     * 取得临时目录
+     * @return string
+     */
+    public static function getTmpDir(){
+        return self::$tmpDir;
+    }
     /**
      * 初始化系统
      *

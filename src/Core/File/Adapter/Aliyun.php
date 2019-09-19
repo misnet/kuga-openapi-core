@@ -62,7 +62,7 @@ class Aliyun extends FileAdapter
         if (isset($configJson[$testKey])) {
             $testOption             = $option;
             $testOption['bucket']['endpoint'] = $configJson[$testKey]['Endpoint'];
-            $testOption['bucket']['bucket']   = $configJson[$testKey]['Name'];
+            $testOption['bucket']['name']   = $configJson[$testKey]['Name'];
             $testOption['bucket']['hostUrl']  = $configJson[$testKey]['Host'];
             $testOption['bucket']['region']   = $configJson[$testKey]['Region'];
             $this->developEvnOption = $testOption;
@@ -138,7 +138,7 @@ class Aliyun extends FileAdapter
      */
     public function remove($url)
     {
-        $config = $this->di->getShared('config');
+        $config = $this->_di->getShared('config');
         //非测试环境下可以删除这些对象
         //测试环境下，当指定的测试bucket和正式的不一样，也可以删除
         if ( ! $config->testmodel || ($this->developEvnOption && $this->developEvnOption['bucket']['name'] != $this->productionEnvOption['bucket']['name'])) {
