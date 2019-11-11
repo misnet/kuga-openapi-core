@@ -144,6 +144,11 @@ class ApiAccessLogService
     public function count($startTime = '-inf', $endTime = '+inf')
     {
         //return $this->storage->getListLength(self::PREFIX.':'.self::LOG_LIST);
+        $startTime = intval($startTime);
+        $startTime || $startTime = '-inf';
+
+        $endTime = intval($endTime);
+        $endTime || $endTime = '+inf';
         return $this->storage->getSortedSetLengthByScore(
             self::PREFIX.':'.self::LOG_LIST, $startTime, $endTime
         );
