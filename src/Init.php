@@ -27,7 +27,9 @@ class Init
     public static function getLoader(){
         return self::$loader;
     }
-
+    public static function getDI(){
+        return self::$di;
+    }
     /**
      * 设置Temp目录
      * @param $t
@@ -91,7 +93,6 @@ class Init
         \Kuga\Core\Service\PluginManageService::init(self::$eventsManager,self::$di);
         \Kuga\Core\Service\PluginManageService::loadPlugins();
     }
-
     /**
      * Inject Logger Service
      */

@@ -6,6 +6,7 @@ use Kuga\Core\Base\AbstractService;
 use Kuga\Core\File\FileRequire;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Font;
 
@@ -131,7 +132,14 @@ class WriterService extends AbstractService
                             ;
                     }
                     $col = Coordinate::stringFromColumnIndex($columnIndex);
-                    $sheet->setCellValueExplicit($col . $line, $cellValue, $dataType);
+                    if($dataType!==Column::TYPE_DRAWING){
+                        $sheet->setCellValueExplicit($col . $line, $cellValue, $dataType);
+                    }else if($cellValue instanceof Drawing){
+                        $cellValue->setWorksheet($sheet);
+                        $cellValue->setCoordinates($col . $line);
+                        $sheet->getRowDimension($line)->setRowHeight($cellValue->getHeight());
+                        $sheet->getColumnDimension($col)->setWidth($cellValue->getWidth());
+                    }
                     $columnIndex++;
                 }
                 $line++;

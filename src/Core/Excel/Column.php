@@ -12,6 +12,7 @@ class Column {
     const TYPE_STRING  = 'str';
     const TYPE_NUMERIC = 'n';
     const TYPE_FORMULA = 'f';
+    const TYPE_DRAWING = 'd';
     /**
      * 列对应数据的key
      * @var string
