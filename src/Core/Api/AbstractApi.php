@@ -8,6 +8,7 @@
 
 namespace Kuga\Core\Api;
 
+use Kuga\Core\Api\Request\BaseRequest;
 use Kuga\Core\Base\AbstractService;
 use Kuga\Core\GlobalVar;
 //use Kuga\Core\SysParams\SysParamsModel;
@@ -463,7 +464,7 @@ abstract class AbstractApi extends AbstractService
         $secret = $this->getAppSecret();
         $params['access_token'] = $this->_accessToken;
         $params['method'] = $method;
-        $params['sign'] = Request::createSign($secret, $params);
+        $params['sign'] = BaseRequest::createSign($secret, $params);
         $provider = HttpClientRequest::getProvider();
         $provider->setBaseUri($hostUrl);
         $provider->header->set('Accept', 'application/json');
