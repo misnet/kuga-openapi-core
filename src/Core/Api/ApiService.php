@@ -448,7 +448,7 @@ class ApiService
             }
             if (class_exists($className)) {
                 //accessToken中的用户主键KEY
-                $$accessTokenUserIdKey = self::$di->getShared('config')->accessTokenUserIdKey;
+                $accessTokenUserIdKey = self::$di->getShared('config')->accessTokenUserIdKey;
                 $refObj = new \ReflectionClass($className);
                 $modObj = $refObj->newInstance(self::$di);
                 if($accessTokenUserIdKey){
