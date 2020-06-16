@@ -34,5 +34,7 @@ class GlobalVar{
      * APP应用列表缓存ID
      */
     const APPLIST_CACHE_ID = 'appKeys';
+    const TOKEN_TYPE_KUGA = 'KUGA';
+    const TOKEN_TYPE_JWT  = 'JWT';
 
 }

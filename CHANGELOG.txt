@@ -1,0 +1,9 @@
+2020.6.15
+V2.0变化
+1、accessToken支持KUGA和JWT两种，KUGA即升级前版本默认支持的token方式
+2、使用原Request对象时（改为\Kuga\Core\Api\Request\BaseRequest）参数传递方式不变
+3、增加JwtRequest对象，有如下变化：
+（1）将公用参数传递从body改到headers中，同时增加access-token-type参数，值有JWT和KUGA两种，JWT用于支持JWT方式的token，KUGA还是原来的验证方式
+（2）将appkey，locale，version，从request body移到request header
+（3）在request header增加 Authorization参数，用于支持JWT，存放JWT的字串
+（4）在request header增加access-token-type参数，用于指定验证类型

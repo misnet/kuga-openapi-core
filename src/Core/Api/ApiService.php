@@ -11,6 +11,7 @@ use Kuga\Core\Api\Exception as ApiException;
 use Kuga\Core\Api\Request;
 use Kuga\Core\Service\ApiAccessLogService;
 use Kuga\Core\GlobalVar;
+use Kuga\Module\Acc\Model\AppModel;
 
 class ApiService
 {
@@ -45,7 +46,9 @@ class ApiService
      * @var unknown
      */
     private static $invokeId;
-
+    /**
+     * @var ApiAccessLogService
+     */
     private static $apiLoggerService;
 
     /**
@@ -72,12 +75,25 @@ class ApiService
      *
      * @return array
      */
-    static private function getApiKeys(){
+    static public function getApiKeys(){
         $cacheId = GlobalVar::APPLIST_CACHE_ID;
         $cache   = self::$di->getShared('cache');
+        $list    = $cache->get($cacheId);
         return $cache->get($cacheId)??[];
     }
 
+    /**
+     * 初始化 api keys
+     * @param array $list  api keys
+     * @param int $days 有效天数
+     */
+    static public function initApiKeys($list,$days=7){
+        $cacheId = GlobalVar::APPLIST_CACHE_ID;
+        $cache   = self::$di->getShared('cache');
+        if(!$cache->get($cacheId)){
+            $cache->set($cacheId,$list,86400 * $days);
+        }
+    }
     static public function setDi($di)
     {
         self::$di = $di;
@@ -89,7 +105,7 @@ class ApiService
      *
      * @return multitype:\Kuga\Service\multitype:unknown
      */
-    static public function response(Request $req)
+    static public function response( $req)
     {
         // 验证app key
         $config = self::$di->get('config');
@@ -105,7 +121,6 @@ class ApiService
                 );
             }
             // 从配置中取得对应的appSecret
-
             $apiKeys = self::getApiKeys();
             //self::$di->getShared('translator')->setLocale(LC_MESSAGES, $req->getLocale());
 
@@ -116,14 +131,16 @@ class ApiService
             } else {
                 // appSecret找到了
                 self::$_appSecret = $apiKeys[self::$_appKey]['secret'];
-                if ( ! $req->validate(self::$_appSecret)) {
+                $tokenType = $req->getAccessTokenType();
+                if(!$tokenType){
+                    $tokenType = GlobalVar::TOKEN_TYPE_KUGA;
+                }
+                $kugaValidate = $tokenType === GlobalVar::TOKEN_TYPE_KUGA;
+                if ($kugaValidate && !$req->validate(self::$_appSecret)) {
                     // 无效的加密传参
-
                     $data        = $req->getData();
                     unset($data['sign']);
-                    $sign = $req::createSign(self::$_appSecret, $data);
-
-
+                    $sign = $req::createSign(self::$_appSecret, $data,$tokenType);
                     $signLong = self::$_appSecret;
                     ksort($data);
                     foreach ($data as $k => $v) {
@@ -140,13 +157,11 @@ class ApiService
 
                     $data['LONG']    = $signLong;
                     $data['newSign'] = $sign;
-
                     return self::_responseError(
                         ApiException::$EXCODE_ERROR_SIGN, '', print_r($data,true)
                     );
                 } else {
                     // 参数正确
-
                     $result = self::invoke($req);
 
                     return $result;
@@ -184,6 +199,9 @@ class ApiService
      */
     static public function beforeInvoke($method, $params = null)
     {
+        if(!self::$di->getShared('config')->apiLogEnabled){
+            return;
+        }
         self::$apiLoggerService = new ApiAccessLogService(self::$di);
         self::$invokeId         = self::$apiLoggerService->init(
             $method, $params
@@ -197,6 +215,9 @@ class ApiService
      */
     static public function beforeResponse($result)
     {
+        if(!self::$di->getShared('config')->apiLogEnabled){
+            return;
+        }
         self::$invokeId
         && self::$apiLoggerService->setResult(
             self::$invokeId, $result
@@ -425,21 +446,33 @@ class ApiService
                     ApiException::$EXCODE_INVALID_ACCESSTOKEN, self::$di->getShared('translator')->_('access_token 未传值')
                 );
             }
-
             if (class_exists($className)) {
+                //accessToken中的用户主键KEY
+                $$accessTokenUserIdKey = self::$di->getShared('config')->accessTokenUserIdKey;
                 $refObj = new \ReflectionClass($className);
                 $modObj = $refObj->newInstance(self::$di);
+                if($accessTokenUserIdKey){
+                    $modObj->setAccessTokenUserIdKey($accessTokenUserIdKey);
+                }
                 $modObj->setAccessToken($accessToken);
                 $modObj->setAccessTokenRequiredLevel($level);
+                $tokenType = $req->getAccessTokenType();
+                if(!$tokenType){
+                    $tokenType = GlobalVar::TOKEN_TYPE_JWT;
+                }
+                $modObj->setAccessTokenType($tokenType);
                 $modObj->initParams($validParams, $method);
                 $modObj->setAppKey($appKey);
                 $modObj->setAppSecret($req->getAppSecret());
+
                 $modObj->setVersion($version);
                 $modObj->setLocale($locale);
                 $modObj->beforeInvoke();
-                self::$apiLoggerService->setAccessMemberId(
-                    self::$invokeId, $modObj->getUserMemberId()
-                );
+                if(self::$di->getShared('config')->apiLogEnabled){
+                    self::$apiLoggerService->setAccessMemberId(
+                        self::$invokeId, $modObj->getUserMemberId()
+                    );
+                }
 
                 if ($action && $refObj->hasMethod($action)) {
                     //$modObj->validateAppKey();
