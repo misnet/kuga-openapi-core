@@ -458,7 +458,7 @@ class ApiService
                 $modObj->setAccessTokenRequiredLevel($level);
                 $tokenType = $req->getAccessTokenType();
                 if(!$tokenType){
-                    $tokenType = GlobalVar::TOKEN_TYPE_JWT;
+                    $tokenType = GlobalVar::TOKEN_TYPE_KUGA;
                 }
                 $modObj->setAccessTokenType($tokenType);
                 $modObj->initParams($validParams, $method);

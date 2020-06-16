@@ -36,7 +36,7 @@ class BaseRequest implements RequestInterface
 
     public function getAccessTokenType()
     {
-        return $this->_get('access_token_type');
+        return $this->_get('access-token-type');
     }
     public function getAppKey()
     {
