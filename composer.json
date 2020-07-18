@@ -22,6 +22,10 @@
             "type": "composer",
             "url": "https://mirrors.aliyun.com/composer/"
         },
+        "incubator":{
+            "type": "vcs",
+            "url": "http://git.sdut.me/phalcon/incubator"
+        },
         "qing": {
             "type": "vcs",
             "url": "https://github.com/misnet/qing.git"
