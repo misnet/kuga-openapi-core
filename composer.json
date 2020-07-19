@@ -35,9 +35,9 @@
         },
         {
             "type": "vcs",
-            "url": "http://git.sdut.me/phalcon/incubator"
+            "url": "https://git.sdut.me/phalcon/incubator"
         },
-        "qing": {
+        {
             "type": "vcs",
             "url": "https://git.sdut.me/misnet/qing"
         },
