@@ -17,18 +17,33 @@
             "Kuga\\": "src"
         }
     },
-    "repositories": {
-        "packagist": {
+    "repositories": [
+        {
+            "packagist": false
+        },
+        {
             "type": "composer",
             "url": "https://mirrors.aliyun.com/composer/"
         },
-        "incubator":{
+        {
+            "type": "composer",
+            "url":"https://packagist.mirrors.sjtug.sjtu.edu.cn"
+        },
+        {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        },
+        {
             "type": "vcs",
             "url": "http://git.sdut.me/phalcon/incubator"
         },
         "qing": {
             "type": "vcs",
-            "url": "https://github.com/misnet/qing.git"
+            "url": "https://git.sdut.me/misnet/qing"
+        },
+        {
+            "type": "vcs",
+            "url": "https://git.sdut.me/phpoffice/phpspreadsheet.git"
         }
-    }
+    ]
 }
