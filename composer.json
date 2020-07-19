@@ -43,7 +43,19 @@
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/phpoffice/phpspreadsheet.git"
+            "url": "https://git.sdut.me/phpoffice/phpspreadsheet"
+        },
+        {
+            "type": "vcs",
+            "url": "https://git.sdut.me/alibabacloud/client"
+        },
+        {
+            "type": "vcs",
+            "url": "https://git.sdut.me/aliyuncs/oss-sdk-php"
+        },
+        {
+            "type": "vcs",
+            "url": "https://git.sdut.me/qcloudsms/qcloudsms_php"
         }
     ]
 }
