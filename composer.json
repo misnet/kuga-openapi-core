@@ -19,7 +19,7 @@
     },
     "repositories": [
         {
-            "packagist": false
+            "packagist.org": false
         },
         {
             "type": "composer",
@@ -52,10 +52,6 @@
         {
             "type": "vcs",
             "url": "https://git.sdut.me/qcloudsms/qcloudsms_php"
-        },
-        {
-            "type": "vcs",
-            "url": "https://git.sdut.me/aliyun/openapi-sdk-php-client"
         }
     ]
 }
