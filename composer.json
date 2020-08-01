@@ -30,10 +30,6 @@
             "url":"https://packagist.mirrors.sjtug.sjtu.edu.cn"
         },
         {
-            "type": "composer",
-            "url": "https://mirrors.aliyun.com/composer/"
-        },
-        {
             "type": "vcs",
             "url": "https://git.sdut.me/phalcon/incubator"
         },
@@ -47,11 +43,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/alibabacloud/client"
+            "url": "https://git.sdut.me/aliyun/openapi-sdk-php-client"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/aliyuncs/oss-sdk-php"
+            "url": "https://git.sdut.me/aliyun/aliyun-oss-php-sdk"
         },
         {
             "type": "vcs",
