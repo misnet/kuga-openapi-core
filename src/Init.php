@@ -184,6 +184,33 @@ class Init
     }
 
     /**
+     * 创建数据库连接
+     * @param $config
+     * username
+     * password
+     * charset
+     * dbname
+     * port
+     *
+     * @return \Phalcon\Db\Adapter\Pdo\Mysql
+     */
+    public static function createDatabaseAdapter($config,$eventsManager=null){
+        $db = new \Phalcon\Db\Adapter\Pdo\Mysql(
+            ['host'         => $config->host, 'username' => $config->username, 'password' => $config->password,
+                'port'         => $config->port, 'dbname' => $config->dbname, 'charset' => $config->charset,
+                'options'      => [
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="'.date('P').'"'],
+                'dialectClass' => self::initDialect()]
+        );
+        if(!$eventsManager){
+            $eventsManager = self::$eventsManager;
+        }
+        $db->setEventsManager($eventsManager);
+        $db->getInternalHandler()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        $db->getInternalHandler()->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+        return $db;
+    }
+    /**
      * 注入数据库服务
      */
     private static function injectDatabase()
@@ -193,30 +220,32 @@ class Init
         $di            = self::$di;
         $di->setShared(
             'dbRead', function () use ($config, $eventsManager) {
-            $dbRead = new \Phalcon\Db\Adapter\Pdo\Mysql(
-                ['host'         => $config->dbread->host, 'username' => $config->dbread->username, 'password' => $config->dbread->password,
-                 'port'         => $config->dbread->port, 'dbname' => $config->dbread->dbname, 'charset' => $config->dbread->charset,
-                 'options'      => [
-                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="'.date('P').'"'],
-                 'dialectClass' => self::initDialect()]
-            );
-            $dbRead->setEventsManager($eventsManager);
-            $dbRead->getInternalHandler()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            $dbRead->getInternalHandler()->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+            $dbRead = self::createDatabaseAdapter($config->dbread,$eventsManager);
+//            $dbRead = new \Phalcon\Db\Adapter\Pdo\Mysql(
+//                ['host'         => $config->dbread->host, 'username' => $config->dbread->username, 'password' => $config->dbread->password,
+//                 'port'         => $config->dbread->port, 'dbname' => $config->dbread->dbname, 'charset' => $config->dbread->charset,
+//                 'options'      => [
+//                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="'.date('P').'"'],
+//                 'dialectClass' => self::initDialect()]
+//            );
+//            $dbRead->setEventsManager($eventsManager);
+//            $dbRead->getInternalHandler()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+//            $dbRead->getInternalHandler()->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
             return $dbRead;
         }
         );
         $di->setShared(
             'dbWrite', function () use ($config, $eventsManager) {
-            $dbWrite = new \Phalcon\Db\Adapter\Pdo\Mysql(
-                ['host'         => $config->dbwrite->host, 'username' => $config->dbwrite->username, 'password' => $config->dbwrite->password,
-                 'port'         => $config->dbwrite->port, 'dbname' => $config->dbwrite->dbname, 'charset' => $config->dbwrite->charset,
-                 'options'      => [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="'.date('P').'"'],
-                 'dialectClass' => self::initDialect()]
-            );
-            $dbWrite->setEventsManager($eventsManager);
-            $dbWrite->getInternalHandler()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            $dbWrite->getInternalHandler()->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+            $dbWrite = self::createDatabaseAdapter($config->dbwrite,$eventsManager);
+//            $dbWrite = new \Phalcon\Db\Adapter\Pdo\Mysql(
+//                ['host'         => $config->dbwrite->host, 'username' => $config->dbwrite->username, 'password' => $config->dbwrite->password,
+//                 'port'         => $config->dbwrite->port, 'dbname' => $config->dbwrite->dbname, 'charset' => $config->dbwrite->charset,
+//                 'options'      => [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="'.date('P').'"'],
+//                 'dialectClass' => self::initDialect()]
+//            );
+//            $dbWrite->setEventsManager($eventsManager);
+//            $dbWrite->getInternalHandler()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+//            $dbWrite->getInternalHandler()->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
 
             return $dbWrite;
         }
