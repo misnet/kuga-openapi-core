@@ -114,6 +114,7 @@ class WriterService extends AbstractService
         if ($this->dataList) {
             $line++;
             $index = 1;
+            $defaultFont = $headStyle->getFont();
             foreach ($this->dataList as $item) {
                 $columnIndex = 1;
                 foreach ($this->columnList as $column) {
@@ -137,8 +138,13 @@ class WriterService extends AbstractService
                     }else if($cellValue instanceof Drawing){
                         $cellValue->setWorksheet($sheet);
                         $cellValue->setCoordinates($col . $line);
+                        $cellValue->setResizeProportional(true);
+
+                        //$h = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getHeight(),$defaultFont);
+                        $w = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getWidth(),$defaultFont);
                         $sheet->getRowDimension($line)->setRowHeight($cellValue->getHeight());
-                        $sheet->getColumnDimension($col)->setWidth($cellValue->getWidth());
+                        $sheet->getColumnDimension($col)->setWidth($w);
+                        $sheet->getColumnDimension($col)->setAutoSize(false);
                     }
                     $columnIndex++;
                 }
