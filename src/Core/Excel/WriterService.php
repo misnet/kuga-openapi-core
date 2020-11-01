@@ -136,15 +136,17 @@ class WriterService extends AbstractService
                     if($dataType!==Column::TYPE_DRAWING){
                         $sheet->setCellValueExplicit($col . $line, $cellValue, $dataType);
                     }else if($cellValue instanceof Drawing){
-                        $cellValue->setWorksheet($sheet);
-                        $cellValue->setCoordinates($col . $line);
-                        $cellValue->setResizeProportional(true);
+                        if($cellValue->getPath()){
+                            $cellValue->setWorksheet($sheet);
+                            $cellValue->setCoordinates($col . $line);
+                            $cellValue->setResizeProportional(true);
 
-                        //$h = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getHeight(),$defaultFont);
-                        $w = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getWidth(),$defaultFont);
-                        $sheet->getRowDimension($line)->setRowHeight($cellValue->getHeight());
-                        $sheet->getColumnDimension($col)->setWidth($w);
-                        $sheet->getColumnDimension($col)->setAutoSize(false);
+                            //$h = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getHeight(),$defaultFont);
+                            $w = \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToCellDimension($cellValue->getWidth(),$defaultFont);
+                            $sheet->getRowDimension($line)->setRowHeight($cellValue->getHeight());
+                            $sheet->getColumnDimension($col)->setWidth($w);
+                            $sheet->getColumnDimension($col)->setAutoSize(false);
+                        }
                     }
                     $columnIndex++;
                 }
