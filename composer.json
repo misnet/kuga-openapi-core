@@ -7,7 +7,7 @@
         "php":">=7.0",
         "kuga/qing":"dev-master",
         "phalcon/incubator": "^3.4",
-        "aliyuncs/oss-sdk-php": "~2.0",
+        "aliyuncs/oss-sdk-php": ">=2.0.0",
         "qcloudsms/qcloudsms_php": "0.1.*",
         "alibabacloud/client":">=1.0.7",
         "phpoffice/phpspreadsheet": ">=1.9.0"
@@ -31,27 +31,27 @@
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/phalcon/incubator"
+            "url": "https://hub.fastgit.org/phalcon/incubator"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/misnet/qing"
+            "url": "https://hub.fastgit.org/misnet/qing"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/phpoffice/phpspreadsheet"
+            "url": "https://hub.fastgit.org/phpoffice/phpspreadsheet"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/aliyun/openapi-sdk-php-client"
+            "url": "https://hub.fastgit.org/aliyun/openapi-sdk-php-client"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/aliyun/aliyun-oss-php-sdk"
+            "url": "https://hub.fastgit.org/aliyun/aliyun-oss-php-sdk"
         },
         {
             "type": "vcs",
-            "url": "https://git.sdut.me/qcloudsms/qcloudsms_php"
+            "url": "https://hub.fastgit.org/qcloudsms/qcloudsms_php"
         }
     ]
 }

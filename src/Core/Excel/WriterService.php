@@ -67,11 +67,15 @@ class WriterService extends AbstractService
         return $this;
     }
 
-    public function save($filename)
+    public function save($filename,$title='WorkSheet')
     {
         $this->filename = $filename;
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        if($title){
+            $sheet->setTitle($title);
+        }
+        $spreadsheet->getDefaultStyle()->getFont()->setName($this->fontName);
         $startLine = $this->startLine;
         $columnIndex = $this->startColumnIndex;
         $startColumnIndex = $columnIndex;
