@@ -7,7 +7,7 @@
         "php":">=7.0",
         "kuga/qing":"dev-master",
         "phalcon/incubator": "^3.4",
-        "aliyuncs/oss-sdk-php": ">=2.0.0",
+        "aliyuncs/oss-sdk-php": "^v2.8",
         "qcloudsms/qcloudsms_php": "0.1.*",
         "alibabacloud/client":">=1.0.7",
         "phpoffice/phpspreadsheet": ">=1.9.0"
