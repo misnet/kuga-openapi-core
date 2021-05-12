@@ -5,7 +5,7 @@
     "license": "LGPL-3.0",
     "require":{
         "php":">=7.0",
-        "kuga/qing":"dev-master",
+        "kuga/qing":">=1.0.0",
         "phalcon/incubator": "^3.4",
         "aliyuncs/oss-sdk-php": ">=2.2.0",
         "qcloudsms/qcloudsms_php": "0.1.*",
