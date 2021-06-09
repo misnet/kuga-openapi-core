@@ -40,6 +40,7 @@ abstract class AbstractApi extends AbstractService
      * @var
      */
     protected $_userMemberId;
+    protected $_userFullname;
 
     protected $_testModel;
 
@@ -80,6 +81,7 @@ abstract class AbstractApi extends AbstractService
     private $_logger;
 
     protected $_accessTokenUserIdKey = 'uid';
+    protected $_accessTokenUserFullname = 'fullname';
 
     public function setAccessTokenUserIdKey($k){
         $this->_accessTokenUserIdKey = $k;
@@ -189,6 +191,7 @@ abstract class AbstractApi extends AbstractService
         $this->_method = $method;
         if ($this->_accessToken && $this->_accessTokenRequiredLevel > 0) {
             $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
+            $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname);
         }
         $this->_testModel = $this->_di->get('config')->get('testmodel');
     }
