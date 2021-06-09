@@ -104,6 +104,7 @@ abstract class AbstractApi extends AbstractService
         }
     }
 
+
     /**
      * 设置accessToken的需求等级
      *
