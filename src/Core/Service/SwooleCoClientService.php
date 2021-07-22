@@ -8,14 +8,16 @@ namespace Kuga\Core\Service;
  */
 class SwooleCoClientService extends \Kuga\Core\Base\AbstractService{
     private $option;
-    public function send($data)
+    public function send($data,$requireReturnData=false)
     {
         $option = $this->_getOption();
        // \Co\run(function () use ($option, $data) {
             $client = new \Swoole\Client(SWOOLE_SOCK_TCP);
             if ($client->connect($option['host'], $option['port'], $option['connectTimeout'])) {
                 $client->send(json_encode($data));
-                return  $client->recv();
+                if($requireReturnData){
+                    return  $client->recv();
+                }
             }else{
                 //echo $client->errCode;
                 //echo "connection failure";
