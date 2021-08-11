@@ -232,34 +232,25 @@ class ApiService
      */
     static private function _fetchValidMethod()
     {
-        if (empty(self::$methodList) && self::$apiJsonConfigFile) {
-            $configFile = self::$apiJsonConfigFile;
-            if (file_exists($configFile)) {
-                $configContent = file_get_contents($configFile);
-                $configArray   = json_decode($configContent, true);
-                //$rootDir       = dirname($configFile);
-                foreach ($configArray as $configCategory) {
-                    self::_parseApiJsonCategory($configCategory);
-                    continue;
-//                    if (isset($configCategory['apiFiles'])) {
-//                        foreach (
-//                            glob(
-//                                $rootDir.DS.$configCategory['apiFiles']
-//                            ) as $filename
-//                        ) {
-//                            $tmp         = file_get_contents($filename);
-//                            $jsonContent = json_decode($tmp, true);
-//                            if ( ! array_key_exists(
-//                                $jsonContent['id'], self::$methodList
-//                            )
-//                            ) {
-//                                self::$methodList[$jsonContent['id']]
-//                                    = $jsonContent;
-//                            }
-//                        }
-//                    }
+        $cache   = self::$di->getShared('cache');
+        $cacheKey= 'API_METHOD_LIST';
+        $data    = $cache->get($cacheKey);
+        if(!self::$methodList && $data){
+            self::$methodList = $data;
+        }else{
+            if (empty(self::$methodList) && self::$apiJsonConfigFile) {
+                $configFile = self::$apiJsonConfigFile;
+                if (file_exists($configFile)) {
+                    $configContent = file_get_contents($configFile);
+                    $configArray   = json_decode($configContent, true);
+                    //$rootDir       = dirname($configFile);
+                    foreach ($configArray as $configCategory) {
+                        self::_parseApiJsonCategory($configCategory);
+                    }
                 }
             }
+            $lifetime = 600;
+            $cache->set($cacheKey,self::$methodList,$lifetime);
         }
     }
     static private function _parseApiJsonCategory($configCategory){
