@@ -235,7 +235,7 @@ class ApiService
         $cache   = self::$di->getShared('cache');
         $cacheKey= 'API_METHOD_LIST';
         $data    = $cache->get($cacheKey);
-        if(!self::$methodList && $data){
+        if(empty(self::$methodList) && $data){
             self::$methodList = $data;
         }else{
             if (empty(self::$methodList) && self::$apiJsonConfigFile) {
