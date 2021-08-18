@@ -86,6 +86,9 @@ abstract class AbstractApi extends AbstractService
     public function setAccessTokenUserIdKey($k){
         $this->_accessTokenUserIdKey = $k;
     }
+    public function setAccessTokenUserFullname($k){
+        $this->_accessTokenUserFullname = $k;
+    }
     public function validateAppKey()
     {
         $cacheId = GlobalVar::APPLIST_CACHE_ID;

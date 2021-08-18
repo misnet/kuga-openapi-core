@@ -440,10 +440,13 @@ class ApiService
             if (class_exists($className)) {
                 //accessToken中的用户主键KEY
                 $accessTokenUserIdKey = self::$di->getShared('config')->accessTokenUserIdKey;
+                $accessTokenUserFullname = self::$di->getShared('config')->accessTokenUserFullname;
+
                 $refObj = new \ReflectionClass($className);
                 $modObj = $refObj->newInstance(self::$di);
                 if($accessTokenUserIdKey){
                     $modObj->setAccessTokenUserIdKey($accessTokenUserIdKey);
+                    $modObj->setAccessTokenUserFullname($accessTokenUserFullname);
                 }
                 $modObj->setAccessToken($accessToken);
                 $modObj->setAccessTokenRequiredLevel($level);
