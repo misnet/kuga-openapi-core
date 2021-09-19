@@ -233,7 +233,8 @@ class ApiService
     static private function _fetchValidMethod()
     {
         $cache   = self::$di->getShared('cache');
-        $cacheKey= 'API_METHOD_LIST_'.self::$_appKey;
+
+        $cacheKey= 'API_METHOD_LIST_'.self::$_appKey.'_'.$_SERVER['HTTP_HOST'];
         $data    = $cache->get($cacheKey);
         if(empty(self::$methodList) && $data){
             self::$methodList = $data;
