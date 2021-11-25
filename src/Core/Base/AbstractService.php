@@ -24,4 +24,10 @@ abstract class AbstractService{
 	 * @var \Phalcon\Events\Manager
 	 */
 	protected $_eventsManager;
+//	protected $_userId;
+//	protected $_username;
+//	public function setUser($uid,$uname){
+//	    $this->_userId = $uid;
+//	    $this->_username = $uname;
+//    }
 }

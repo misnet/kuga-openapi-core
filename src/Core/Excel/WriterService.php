@@ -72,10 +72,11 @@ class WriterService extends AbstractService
         $this->filename = $filename;
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+
+        $spreadsheet->getDefaultStyle()->getFont()->setName($this->fontName);
         if($title){
             $sheet->setTitle($title);
         }
-        $spreadsheet->getDefaultStyle()->getFont()->setName($this->fontName);
         $startLine = $this->startLine;
         $columnIndex = $this->startColumnIndex;
         $startColumnIndex = $columnIndex;

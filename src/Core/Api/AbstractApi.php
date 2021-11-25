@@ -15,6 +15,7 @@ use Kuga\Core\GlobalVar;
 use Kuga\Core\Api\Exception as ApiException;
 
 use Kuga\Core\Service\JWTService;
+use Phalcon\Config;
 use Phalcon\Http\Client\Request as HttpClientRequest;
 
 abstract class AbstractApi extends AbstractService
@@ -196,6 +197,15 @@ abstract class AbstractApi extends AbstractService
         if ($this->_accessToken && $this->_accessTokenRequiredLevel > 0) {
             $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
             $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname);
+            $userInfo = ['userId'=>$this->_userMemberId,
+                'username'=>$this->_username,
+                'token'=>$this->_accessToken,
+                'appKey'=>$this->_appKey,
+                'appSecret'=>$this->_appSecret
+            ];
+            $this->_di->setShared('user',function() use($userInfo){
+                return new Config($userInfo);
+            });
         }
         $this->_testModel = $this->_di->get('config')->get('testmodel');
     }
