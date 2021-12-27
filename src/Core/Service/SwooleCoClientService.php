@@ -15,9 +15,9 @@ class SwooleCoClientService extends \Kuga\Core\Base\AbstractService{
             $client = new \Swoole\Client(SWOOLE_SOCK_TCP);
             if ($client->connect($option['host'], $option['port'], $option['connectTimeout'])) {
                 $client->send(json_encode($data));
-                if($requireReturnData){
-                    return  $client->recv();
-                }
+//
+
+                
             }else{
                 //echo $client->errCode;
                 //echo "connection failure";
