@@ -4,10 +4,10 @@
  *
  */
 namespace Kuga\Core\Base;
-use Kuga\Core\Base\ModelConditionObject as ModelCondition;
+use Phalcon\Mvc\Model\Relation;
 
 abstract class AbstractModel extends \Phalcon\Mvc\Model{
-    use SmartFinderTrait;
+
     use StatsTrait;
     /**
      *
@@ -44,12 +44,11 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(!$this->translator)
             $this->translator    = $this->getDI()->getShared('translator');
     }
-    public function hasOne($fi,$rt,$rf,$op=array()){
+    public function hasOne($fi,$rt,$rf,$op=array()):Relation{
         $namespace = __NAMESPACE__;
         if(isset($op['namespace'])){
             $namespace = $op['namespace'];
         }
-        parent::hasOne($fi, $namespace."\\".$rt, $rf,$op);
         self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
         if(isset($op['join'])){
             self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
@@ -59,14 +58,14 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(isset($op['talias'])){
             self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
         }
+        return parent::hasOne($fi, $namespace."\\".$rt, $rf,$op);
     }
 
-    public function belongsTo($fi,$rt,$rf,$op=array()){
+    public function belongsTo($fi,$rt,$rf,$op=array()):Relation {
         $namespace = __NAMESPACE__;
         if(isset($op['namespace'])){
             $namespace = $op['namespace'];
         }
-        parent::belongsTo($fi, $namespace."\\".$rt, $rf,$op);
         self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
         if(isset($op['join'])){
             self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
@@ -76,21 +75,22 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(isset($op['talias'])){
             self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
         }
+        return parent::belongsTo($fi, $namespace."\\".$rt, $rf,$op);
     }
 
-    public function hasMany($fi,$rt,$rf,$op=array()){
+    public function hasMany($fi,$rt,$rf,$op=array()) :Relation{
         $namespace = __NAMESPACE__;
         if(isset($op['namespace'])){
             $namespace = $op['namespace'];
         }
-        parent::hasMany($fi, $namespace."\\".$rt, $rf,$op);
+        return parent::hasMany($fi, $namespace."\\".$rt, $rf,$op);
     }
-    public function hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op=array()){
+    public function hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op=array()):Relation{
         $namespace = __NAMESPACE__;
         if(isset($op['namespace'])){
             $namespace = $op['namespace'];
         }
-        parent::hasManyToMany($fields,$namespace."\\".$intermediateModel,$intermediateFields,$intermediateReferencedFields,$namespace."\\".$referencedModel,$referencedFields,$op);
+        return parent::hasManyToMany($fields,$namespace."\\".$intermediateModel,$intermediateFields,$intermediateReferencedFields,$namespace."\\".$referencedModel,$referencedFields,$op);
     }
     public function columnMap() {
         return [];
@@ -141,59 +141,7 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         return $data;
     }
 
-    /**
-     * 并联查数据
-     * ——当数据量大时可能会影响性能
-     * @deprecated
-     * @param \Kuga\DTO\ModelCondition $cond
-     * @return \Phalcon\Mvc\Model\Resultset\Simple || Array
-     */
-    public function joinFind($cond,$cols=array()){
-        if(!is_object($cond) && preg_match('/^(\d+)$/is',$cond)&& intval($cond)!=0){
-            $id = $cond;
-            $cond = new ModelCondition();
-            $cond->condition = '`'.$this->getPrimaryField().'`=:id';
-
-            $cond->bind['id'] = $id;
-            $cond->singleRecord = true;
-        }
-        if($cond->singleRecord){
-            $cond->page = 1;
-            $cond->limit= 1;
-        }
-        $this->setSmartCondition($cond->condition);
-        $this->setSmartColumn($cols,$this);
-        $this->setSmartLimitPage($cond->page,$cond->limit);
-        if($cond->orderBy){
-            $this->setSmartOrderBy($cond->orderBy);
-        }
-        $this->setResultToArray($cond->returnArray);
-        $this->setSmartCache($cond->enableCache);
-        $this->setGroupBy($cond->groupBy);
-
-        $result = $this->executeSmartFinder($cond->bind,false,$cond->bindType);
-        if($result && $cond->singleRecord){
-            //return $cond->returnArray?$result[0]:$result->getFirst();
-            return $result[0];
-        }else{
-            return $result;
-        }
-    }
-    /**
-     * 按ModelCondition条件统计记录
-     * @deprecated
-     * @param \Kuga\DTO\ModelCondition $cond
-     * @return integer
-     */
-    public function joinCount($cond){
-        $this->initSmartFinder(true);
-        $this->setSmartCondition($cond->condition);
-        $this->setResultToArray(true);
-        $this->setSmartCache($cond->enableCache);
-        return intval($this->executeSmartFinder($cond->bind,true,$cond->bindType));
-    }
-
-    public function toArray($columns=null)
+    public function toArray($columns=null):array
     {
         $array=[];
         if(empty($columns)){

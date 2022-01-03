@@ -43,14 +43,11 @@ class ApiLogModel extends AbstractModel
 
     public $redisId;
 
-    public function getSource()
-    {
-        return 't_api_logs';
-    }
 
     public function initialize()
     {
         parent::initialize();
+        $this->setSource('t_api_logs');
         $config = $this->getDI()->getShared('config');
         if ($config->dbwrite->statsDbname) {
             $this->setSchema($config->dbwrite->statsDbname);

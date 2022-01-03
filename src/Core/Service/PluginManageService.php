@@ -32,12 +32,7 @@ class PluginManageService
 
     public static function loadPlugins()
     {
-        //register plugin namespace
-//        $loader = new \Phalcon\Loader();
-//        $loader->registerNamespaces(
-//            ['Kuga\Plugin' => QING_CLASS_PATH.'/plugin']
-//        )->register();
-        //attach plugin
+
         $plugins = self::getPlugins();
         foreach ($plugins as $plugin) {
             $className = '\Kuga\Core\\'.$plugin;

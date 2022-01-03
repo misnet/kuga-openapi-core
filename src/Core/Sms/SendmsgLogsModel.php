@@ -55,9 +55,10 @@ class SendmsgLogsModel extends AbstractModel
      */
     public $sendTime;
 
-    public function getSource()
+    public function initialize()
     {
-        return 't_sendmsg_logs';
+        parent::initialize();
+        $this->setSource('t_sendmsg_logs');
     }
 
     /**

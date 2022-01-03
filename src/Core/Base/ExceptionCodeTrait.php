@@ -1,5 +1,8 @@
 <?php
 namespace Kuga\Core\Base;
+use Phalcon\Di\Di;
+use Phalcon\Di\FactoryDefault;
+
 trait ExceptionCodeTrait{
 
     public static $EXCODE_SUCCESS = 0;
@@ -55,12 +58,19 @@ trait ExceptionCodeTrait{
      */
     public static $EXCODE_NOT_OWNER = 99007;
 
+    private static $di;
+    public static function setDi($di){
+        self::$di = $di;
+    }
     public static function getExceptionList(){
         return [];
     }
+
     public static function getAllExceptions(){
-        $di = \Phalcon\DI::getDefault();
-        $t = $di->getShared('translator');
+        if(!self::$di){
+            self::$di = Di::getDefault();
+        }
+        $t = self::$di->get('translator');
         $data = array(
             self::$EXCODE_SUCCESS=>'',
             self::$EXCODE_UNKNOWN=>'',

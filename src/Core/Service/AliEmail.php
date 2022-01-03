@@ -62,10 +62,10 @@ class AliEmail{
 
         AlibabaCloud::accessKeyClient(self::$config['appKey'], self::$config['appSecret'])
             ->regionId(self::$config['regionId']) // replace regionId as you need
-            ->asGlobalClient();
+            ->asDefaultClient();
 
         try {
-            $result = AlibabaCloud::rpcRequest()
+            $result = AlibabaCloud::rpc()
                 ->product('Dm')
                 // ->scheme('https') // https | http
                 ->version('2015-11-23')

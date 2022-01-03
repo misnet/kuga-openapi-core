@@ -22,7 +22,7 @@ class Tencent implements SmsInterface {
      */
     private $smsType = 0;
     public  function __construct($configFile,$di=null){
-        self::$di   = $di?$di:new \Phalcon\DI\FactoryDefault();;
+        self::$di   = $di?$di:\Phalcon\Di\Di::getDefault();
         $translator = self::$di->getShared('translator');
         if(!file_exists($configFile)){
             $errObj = new ErrorObject();

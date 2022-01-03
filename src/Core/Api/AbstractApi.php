@@ -8,15 +8,15 @@
 
 namespace Kuga\Core\Api;
 
+use GuzzleHttp\Client;
 use Kuga\Core\Api\Request\BaseRequest;
 use Kuga\Core\Base\AbstractService;
 use Kuga\Core\GlobalVar;
-//use Kuga\Core\SysParams\SysParamsModel;
 use Kuga\Core\Api\Exception as ApiException;
 
 use Kuga\Core\Service\JWTService;
 use Phalcon\Config;
-use Phalcon\Http\Client\Request as HttpClientRequest;
+use Phalcon\Http\Request as HttpClientRequest;
 
 abstract class AbstractApi extends AbstractService
 {
@@ -198,7 +198,9 @@ abstract class AbstractApi extends AbstractService
             $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
             $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname);
             $userInfo = ['userId'=>$this->_userMemberId,
-                'username'=>$this->_username,
+                //TODO:username需要调整
+                'username'=>$this->_userFullname,
+                'fullname'=>$this->_userFullname,
                 'token'=>$this->_accessToken,
                 'appKey'=>$this->_appKey,
                 'appSecret'=>$this->_appSecret
@@ -482,10 +484,8 @@ abstract class AbstractApi extends AbstractService
         $params['access_token'] = $this->_accessToken;
         $params['method'] = $method;
         $params['sign'] = BaseRequest::createSign($secret, $params);
-        $provider = HttpClientRequest::getProvider();
-        $provider->setBaseUri($hostUrl);
-        $provider->header->set('Accept', 'application/json');
-        $response = $provider->post($path, $params);
-        return $response->body;
+        $provider = new Client();
+        $res = $provider->request('post',$hostUrl,['body'=>$params]);
+        return $res->getBody();
     }
 }

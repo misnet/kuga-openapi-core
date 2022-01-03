@@ -91,8 +91,8 @@ trait  StatsTrait{
      */
     public function clearLikedData(){
         $id = $this->{$this->getPrimaryField()};
-        $this->storage->delete($this->statsKey.':likedSet:'.$id);
-        $this->storage->delete($this->statsKey.':cntLiked:'.$id);
+        $this->storage->delete($this->statsKey.'-likedSet-'.$id);
+        $this->storage->delete($this->statsKey.'-cntLiked-'.$id);
     }
     /**
      * 统计点赞次数
@@ -100,8 +100,8 @@ trait  StatsTrait{
      * @return mixed
      */
     public  function cntLiked($onlyRealData = false){
-        $realData = $this->_countSet($this->statsKey.':likedSet:');
-        $fakeData = $this->_getStats($this->statsKey.':cntLiked:');
+        $realData = $this->_countSet($this->statsKey.'-likedSet-');
+        $fakeData = $this->_getStats($this->statsKey.'-cntLiked-');
         return $onlyRealData?$realData:($realData + $fakeData);
     }
 
@@ -110,7 +110,7 @@ trait  StatsTrait{
      * @param int $delta
      */
     public function addFakeLiked($delta=1){
-        $this->_addStats($this->statsKey.':cntLiked:',$delta);
+        $this->_addStats($this->statsKey.'-cntLiked-',$delta);
     }
 
 
@@ -119,7 +119,7 @@ trait  StatsTrait{
      * @return mixed
      */
     public function addLiked($value){
-        $result =  (boolean)$this->_addToSet($this->statsKey.':likedSet:',$value);
+        $result =  (boolean)$this->_addToSet($this->statsKey.'-likedSet-',$value);
         return $result;
     }
 
@@ -128,7 +128,7 @@ trait  StatsTrait{
      * @param $value
      */
     public function delLiked($value){
-        return (boolean)$this->_deleteFromSet($this->statsKey.':likedSet:',$value);
+        return (boolean)$this->_deleteFromSet($this->statsKey.'-likedSet-',$value);
     }
 
     /**
@@ -136,8 +136,8 @@ trait  StatsTrait{
      */
     public function clearVisitedData(){
         $id = $this->{$this->getPrimaryField()};
-        $this->storage->delete($this->statsKey.':cntVisited:'.$id);
-        $this->storage->delete($this->statsKey.':cntRealVisited:'.$id);
+        $this->storage->delete($this->statsKey.'-cntVisited-'.$id);
+        $this->storage->delete($this->statsKey.'-cntRealVisited-'.$id);
     }
 
     /**
@@ -145,8 +145,8 @@ trait  StatsTrait{
      */
     public function clearSharedData(){
         $id = $this->{$this->getPrimaryField()};
-        $this->storage->delete($this->statsKey.':cntShared:'.$id);
-        $this->storage->delete($this->statsKey.':cntRealShared:'.$id);
+        $this->storage->delete($this->statsKey.'-cntShared-'.$id);
+        $this->storage->delete($this->statsKey.'-cntRealShared-'.$id);
     }
 
     /**
@@ -155,7 +155,7 @@ trait  StatsTrait{
      * @return bool
      */
     public function isLiked($value){
-        return (boolean)$this->_isInSet($this->statsKey.':likedSet:',$value);
+        return (boolean)$this->_isInSet($this->statsKey.'-likedSet-',$value);
     }
 
     /**
@@ -164,8 +164,8 @@ trait  StatsTrait{
      * @return mixed
      */
     public  function cntShared($onlyRealData = false){
-        $cntFakeShared =  $this->_getStats($this->statsKey.':cntShared:');
-        $cntRealShared =  $this->_getStats($this->statsKey.':cntRealShared:');
+        $cntFakeShared =  $this->_getStats($this->statsKey.'-cntShared-');
+        $cntRealShared =  $this->_getStats($this->statsKey.'-cntRealShared-');
         return $onlyRealData?$cntRealShared:($cntFakeShared + $cntRealShared);
     }
 
@@ -177,12 +177,12 @@ trait  StatsTrait{
      */
     public function addShare($amount=1,$isFaked=false){
         if($isFaked) {
-            $cntFakeShared =  $this->_addStats($this->statsKey . ':cntShared:', $amount);
-            $cntRealShared = $this->_getStats($this->statsKey.':cntRealShared:');
+            $cntFakeShared =  $this->_addStats($this->statsKey . '-cntShared-', $amount);
+            $cntRealShared = $this->_getStats($this->statsKey.'-cntRealShared-');
             return $cntRealShared + $cntFakeShared;
         }else{
-            $cntFakeShared = $this->_getStats($this->statsKey.':cntShared:');
-            $cntRealShared = $this->_addStats($this->statsKey.':cntRealShared:',$amount);
+            $cntFakeShared = $this->_getStats($this->statsKey.'-cntShared-');
+            $cntRealShared = $this->_addStats($this->statsKey.'-cntRealShared-',$amount);
             return $cntRealShared + $cntFakeShared;
         }
     }
@@ -194,8 +194,8 @@ trait  StatsTrait{
      */
     public  function cntVisited($onlyRealData=false){
         //return $this->_getStats($this->statsKey.':cntVisited:');
-        $cntFake =  $this->_getStats($this->statsKey.':cntVisited:');
-        $cntReal =  $this->_getStats($this->statsKey.':cntRealVisited:');
+        $cntFake =  $this->_getStats($this->statsKey.'-cntVisited-');
+        $cntReal =  $this->_getStats($this->statsKey.'-cntRealVisited-');
         //return $cntFake + $cntReal;
         return $onlyRealData?$cntReal:($cntFake + $cntReal);
     }
@@ -208,12 +208,12 @@ trait  StatsTrait{
      */
     public function addVisited($amount=1,$isFaked=false){
         if($isFaked) {
-            $cntFake =  $this->_addStats($this->statsKey . ':cntVisited:', $amount);
-            $cntReal = $this->_getStats($this->statsKey.':cntRealVisited:');
+            $cntFake =  $this->_addStats($this->statsKey . '-cntVisited-', $amount);
+            $cntReal = $this->_getStats($this->statsKey.'-cntRealVisited-');
             return $cntFake + $cntReal;
         }else{
-            $cntFake = $this->_getStats($this->statsKey.':cntVisited:');
-            $cntReal = $this->_addStats($this->statsKey.':cntRealVisited:',$amount);
+            $cntFake = $this->_getStats($this->statsKey.'-cntVisited-');
+            $cntReal = $this->_addStats($this->statsKey.'-cntRealVisited-',$amount);
             return $cntFake + $cntReal;
         }
         //return $this->_addStats($this->statsKey.':cntVisited:',$amount);
@@ -243,14 +243,14 @@ trait  StatsTrait{
         foreach($ids as $id){
             foreach($fetchKeys as $k){
                 $mapping[$k.$id] = $index;
-                $this->storage->get($this->statsKey.':'.$k.':'.$id);
+                $this->storage->get($this->statsKey.'-'.$k.'-'.$id);
                 $index++;
             }
         }
         if(in_array('cntLiked',$fetchKeys)) {
             foreach ($ids as $id) {
                 $mapping['likedSet'.$id] = $index;
-                $this->storage->countSet($this->statsKey . ':likedSet:' . $id);
+                $this->storage->countSet($this->statsKey . '-likedSet-' . $id);
                 $index++;
             }
         }
@@ -316,14 +316,14 @@ trait  StatsTrait{
         $this->storage->begin();
         foreach($fetchKeys as $k){
             $mapping[$k] = $index;
-            $f=$this->_getStats($this->statsKey.':'.$k.':');
+            $f=$this->_getStats($this->statsKey.'-'.$k.'-');
             $index++;
         }
 
 
         if(in_array('cntLiked',$keys)){
             $mapping['likedSet'] = $index;
-            $this->_countSet($this->statsKey.':likedSet:');
+            $this->_countSet($this->statsKey.'-likedSet-');
         }
         $result = $this->storage->commit();
         $data   = [];

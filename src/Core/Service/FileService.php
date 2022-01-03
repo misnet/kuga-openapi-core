@@ -1,6 +1,7 @@
 <?php
 namespace Kuga\Core\Service;
 use Kuga\Core\Base\ServiceException;
+use Phalcon\Di\FactoryDefault;
 
 class FileService{
     /**
@@ -12,14 +13,9 @@ class FileService{
      * @return \Kuga\Core\File\FileAdapter
      */
     public static function factory($adapter,$config=array(),$di=null){
-//        $loader = new \Phalcon\Loader();
-//        $loader->registerNamespaces(array(
-//            'Kuga\Core\File'=>'./File',
-//            'Kuga\Service\File\Adapter'=>'./File/Adapter'
-//        ))->register();
         $className = '\Kuga\Core\File\Adapter\\'.ucfirst($adapter);
         if(!$di){
-            $di =  \Phalcon\DI::getDefault();
+            $di = \Phalcon\Di\Di::getDefault();
         }
         if(class_exists($className)){
             $service =new $className($di);
@@ -30,7 +26,7 @@ class FileService{
         }
     }
     public static function getThumbUrl($src,$width,$height,$option=''){
-        $di =  \Phalcon\DI::getDefault();
+        $di =  \Phalcon\Di\Di::getDefault();
         if(stripos($src, '/')===0){
             $fs = self::factory('Local',$di->get('config')->localfile);
         }else{

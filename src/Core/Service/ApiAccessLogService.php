@@ -2,6 +2,8 @@
 
 namespace Kuga\Core\Service;
 
+use Phalcon\Di\FactoryDefault;
+
 /**
  * API记录访问日志
  *
@@ -31,14 +33,14 @@ class ApiAccessLogService
     private $storage;
 
     /**
-     * @var \Phalcon\DiInterface
+     * @var \Phalcon\Di\DiInterface
      */
     protected $_di;
 
     public function __construct($di = null)
     {
         if (is_null($di)) {
-            $this->_di = \Phalcon\DI::getDefault();
+            $this->_di = new FactoryDefault();
         } else {
             $this->_di = $di;
         }

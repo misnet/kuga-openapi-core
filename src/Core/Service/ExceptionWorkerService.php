@@ -66,15 +66,15 @@ class ExceptionWorkerService extends AbstractService
     public function push(ErrorObject $err)
     {
         $now = $err->time ? $err->time : time();
-        $id  = $this->storage->incrementBy(self::PREFIX.':'.self::LOG_ID_NAME);
-        $this->storage->addToSortedSet(self::PREFIX.':'.self::LOG_LIST, $id, $now);
+        $id  = $this->storage->incrementBy(self::PREFIX.'-'.self::LOG_ID_NAME);
+        $this->storage->addToSortedSet(self::PREFIX.'-'.self::LOG_LIST, $id, $now);
         $this->storage->setToHash(
-            self::PREFIX.':'.self::LOG_KEY.':'.$id,
+            self::PREFIX.'-'.self::LOG_KEY.'-'.$id,
             ['class' => $err->class, 'method' => $err->method, 'createTime' => $now, 'msg' => $err->msg,
              'ip'    => \Qing\Lib\Utils::getClientIp(), 'line' => $err->line, 'noticeTryTime' => 0, 'noticedTime' => 0]
         );
         //记录通知队列
-        $this->storage->prependToList(self::PREFIX.':'.self::ERR_NOTICE_LIST, $id);
+        $this->storage->prependToList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, $id);
 
         return $id;
     }
@@ -86,10 +86,10 @@ class ExceptionWorkerService extends AbstractService
      */
     public function noticeDevops($limit = 10)
     {
-        $list = $this->storage->getList(self::PREFIX.':'.self::ERR_NOTICE_LIST, 0, $limit);
+        $list = $this->storage->getList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, 0, $limit);
         if ($list) {
             foreach ($list as $id) {
-                $errorInfo       = $this->storage->getFromHash(self::PREFIX.':'.self::LOG_KEY.':'.$id);
+                $errorInfo       = $this->storage->getFromHash(self::PREFIX.'-'.self::LOG_KEY.'-'.$id);
                 $errorInfo['id'] = $id;
                 $this->errorNotice($errorInfo);
             }
@@ -117,7 +117,7 @@ class ExceptionWorkerService extends AbstractService
 
         $config = $this->_di->get('sms')->getConfig();
         $tmpId  = $config['template']['devops'];
-        $to     = SysParamsModel::getInstance()->get('sms.devops_mobiles');
+        $to     = $config['managerMobiles'];
         if ($to && $tmpId && $errorInfo && isset($errorInfo['id'])) {
             $params['errorId'] = $errorInfo['id'];
             $params['msg']     = $errorInfo['msg'];
@@ -125,14 +125,14 @@ class ExceptionWorkerService extends AbstractService
             $result            = $this->_di->get('sms')->send($to, $tmpId, $params);
             if ($result) {
                 $this->storage->setToHash(
-                    self::PREFIX.':'.self::LOG_KEY.':'.$errorInfo['id'],
+                    self::PREFIX.'-'.self::LOG_KEY.'-'.$errorInfo['id'],
                     ['noticeTryTime' => $errorInfo['noticeTryTime'] + 1, 'noticedTime' => time()]
                 );
                 //成功通知就可以从队列中去掉
-                $this->storage->deleteFromList(self::PREFIX.':'.self::ERR_NOTICE_LIST, $errorInfo['id']);
+                $this->storage->deleteFromList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, $errorInfo['id']);
             } else {
                 $this->storage->setToHash(
-                    self::PREFIX.':'.self::LOG_KEY.':'.$errorInfo['id'],
+                    self::PREFIX.'-'.self::LOG_KEY.'-'.$errorInfo['id'],
                     ['noticeTryTime' => $errorInfo['noticeTryTime'] + 1]
                 );
             }
@@ -147,9 +147,9 @@ class ExceptionWorkerService extends AbstractService
     public function removeById($id)
     {
         if (is_int($id)) {
-            $this->storage->delete(self::PREFIX.':'.self::LOG_KEY.':'.$id);
-            $this->storage->deleteFromSortedSet(self::PREFIX.':'.self::LOG_LIST, $id);
-            $this->storage->deleteFromList(self::PREFIX.':'.self::ERR_NOTICE_LIST, $id);
+            $this->storage->delete(self::PREFIX.'-'.self::LOG_KEY.'-'.$id);
+            $this->storage->deleteFromSortedSet(self::PREFIX.'-'.self::LOG_LIST, $id);
+            $this->storage->deleteFromList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, $id);
         }
     }
 
@@ -169,7 +169,7 @@ class ExceptionWorkerService extends AbstractService
                 $ids = [];
                 foreach ($list as $item) {
                     $ids[] = $item['id'];
-                    $this->storage->deleteFromSortedSet(self::PREFIX.':'.self::LOG_LIST, $item['id']);
+                    $this->storage->deleteFromSortedSet(self::PREFIX.'-'.self::LOG_LIST, $item['id']);
                 }
                 $this->storage->delete($ids);
             }
@@ -178,10 +178,10 @@ class ExceptionWorkerService extends AbstractService
 
     public function flush()
     {
-        $this->storage->delete(self::PREFIX.':'.self::LOG_LIST);
-        $this->storage->set(self::PREFIX.':'.self::LOG_ID_NAME, 1);
-        $this->storage->deleteKeys(self::PREFIX.':'.self::LOG_KEY.'*');
-        $this->storage->delete(self::PREFIX.':'.self::ERR_NOTICE_LIST);
+        $this->storage->delete(self::PREFIX.'-'.self::LOG_LIST);
+        $this->storage->set(self::PREFIX.'-'.self::LOG_ID_NAME, 1);
+        $this->storage->deleteKeys(self::PREFIX.'-'.self::LOG_KEY.'*');
+        $this->storage->delete(self::PREFIX.'-'.self::ERR_NOTICE_LIST);
     }
 
     /**
@@ -194,7 +194,7 @@ class ExceptionWorkerService extends AbstractService
      */
     public function count($fromTime = 0, $endTime = 0)
     {
-        $key = md5(__METHOD__.':'.serialize(func_get_args()));
+        $key = md5(__METHOD__.'-'.serialize(func_get_args()));
         if ($endTime === 0) {
             $endTime = time() + 1000;
         }
@@ -202,7 +202,7 @@ class ExceptionWorkerService extends AbstractService
             return $this->_cacheData[$key];
         } else {
             $this->_cacheData[$key] = $this->storage->getSortedSetLengthByScore(
-                self::PREFIX.':'.self::LOG_LIST, $fromTime, $endTime
+                self::PREFIX.'-'.self::LOG_LIST, $fromTime, $endTime
             );
 
             return $this->_cacheData[$key];
@@ -226,12 +226,12 @@ class ExceptionWorkerService extends AbstractService
             $endTime = time() + 1000;
         }
         $list = $this->storage->getFromSortedSetByScore(
-            self::PREFIX.':'.self::LOG_LIST, $fromTime, $endTime, false, $limit, $start, true
+            self::PREFIX.'-'.self::LOG_LIST, $fromTime, $endTime, false, $limit, $start, true
         );
         if ($list) {
             $array = [];
             foreach ($list as $invokeId) {
-                $tmp       = $this->storage->getFromHash(self::PREFIX.':'.self::LOG_KEY.':'.$invokeId);
+                $tmp       = $this->storage->getFromHash(self::PREFIX.'-'.self::LOG_KEY.'-'.$invokeId);
                 $tmp['id'] = $invokeId;
                 $array[]   = $tmp;
             }

@@ -24,7 +24,7 @@ class Aliyun implements SmsInterface
 
     public function __construct($configFile, $di = null)
     {
-        self::$di = $di ? $di : new \Phalcon\DI\FactoryDefault();;
+        self::$di = $di ? $di : \Phalcon\Di\Di::getDefault();
         $translator = self::$di->getShared('translator');
         if ( ! file_exists($configFile)) {
             $errObj         = new ErrorObject();
@@ -71,7 +71,7 @@ class Aliyun implements SmsInterface
             $to = join(',', $to);
         }
 
-        AlibabaCloud::accessKeyClient(self::$config['appKey'], self::$config['appSecret'])->regionId(self::$config['regionId'])->asGlobalClient();
+        AlibabaCloud::accessKeyClient(self::$config['appKey'], self::$config['appSecret'])->regionId(self::$config['regionId'])->asDefaultClient();
         $queryParams = [
             'PhoneNumbers'=>strval($to),
             'SignName'=>self::$config['signName'],
@@ -94,7 +94,7 @@ class Aliyun implements SmsInterface
                 }
                 $queryParams['TemplateParam'] = $params;
             }
-            $result = AlibabaCloud::rpcRequest()
+            $result = AlibabaCloud::rpc()
                 ->product('Dysmsapi')
                 ->version('2017-05-25')
                 ->action('SendSms')

@@ -2,7 +2,7 @@
 namespace Kuga\Core\Base;
 abstract class AbstractService{
     /**
-     * @var \Phalcon\DiInterface
+     * @var \Phalcon\Di\DiInterface
      */
 	protected $_di;
 	/**

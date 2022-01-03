@@ -40,8 +40,9 @@ class RegionModel extends AbstractModel {
     public $sortIndex =0;
 
 
-    public function getSource() {
-        return 't_regions';
+    public function initialize() {
+        parent::initialize();
+        $this->setSource('t_regions');
     }
     /**
      * Independent Column Mapping.

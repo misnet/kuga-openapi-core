@@ -75,8 +75,9 @@ class TaskModel extends  AbstractModel{
      * @var string
      */
     public $name;
-    public function getSource() {
-        return 't_tasks';
+    public function initialize() {
+        parent::initialize();
+        $this->setSource('t_tasks');
     }
     /**
      * Independent Column Mapping.
