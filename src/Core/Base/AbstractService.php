@@ -12,7 +12,7 @@ abstract class AbstractService{
     protected $translator;
 	public function __construct($di=null){
 		if(is_null($di)){
-			$this->_di = \Phalcon\DI::getDefault();
+			$this->_di = \Phalcon\Di\FactoryDefault::getDefault();
 		}else{
 			$this->_di = $di;
 		}

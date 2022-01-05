@@ -3,20 +3,23 @@
     "description":"kuga核心SDK，在https://github.com/misnet/kuga-openapi-sdk 上进行了简化，去掉业务相关的逻辑，只保留框架层级相关接口",
     "type":"library",
     "license": "LGPL-3.0",
+    "version": "2.1.0",
     "require":{
-        "php":">=7.0",
-        "kuga/qing":">=1.0.0",
-        "phalcon/incubator": "^3.4",
+        "php":">=7.4",
+        "phalcon/cphalcon": ">=5.0.x-dev",
+        "kuga/qing":">=1.1.0",
         "aliyuncs/oss-sdk-php": ">=2.2.0",
         "qcloudsms/qcloudsms_php": "0.1.*",
         "alibabacloud/client":">=1.0.7",
-        "phpoffice/phpspreadsheet": ">=1.9.0"
+        "phpoffice/phpspreadsheet": ">=1.9.0",
+        "guzzlehttp/guzzle": "7.4.x-dev"
     },
     "autoload": {
         "psr-4": {
             "Kuga\\": "src"
         }
     },
+    "minimum-stability": "dev",
     "repositories": [
         {
             "packagist.org": false
@@ -31,15 +34,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://hub.fastgit.org/phalcon/incubator"
+            "url": "https://github.com/misnet/qing"
         },
         {
             "type": "vcs",
-            "url": "https://hub.fastgit.org/misnet/qing"
-        },
-        {
-            "type": "vcs",
-            "url": "https://hub.fastgit.org/phpoffice/phpspreadsheet"
+            "url": "https://github.com/phpoffice/phpspreadsheet"
         },
         {
             "type": "vcs",

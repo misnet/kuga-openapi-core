@@ -69,7 +69,7 @@ class Init
         ini_set('serialize_precision', -1);
         self::$di = $di;
         if (!self::$di) {
-            self::$di = new \Phalcon\DI\FactoryDefault();
+            self::$di = \Phalcon\Di\FactoryDefault::getDefault();
         }
         self::$eventsManager = $di->getShared('eventsManager');
         self::$config = new \Phalcon\Config\Config($config);
