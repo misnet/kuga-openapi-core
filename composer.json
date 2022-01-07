@@ -6,11 +6,10 @@
     "version": "2.1.0",
     "require":{
         "php":">=7.4",
-        "phalcon/cphalcon": ">=5.0.x-dev",
         "kuga/qing":">=1.1.0",
         "aliyuncs/oss-sdk-php": ">=2.2.0",
         "qcloudsms/qcloudsms_php": "0.1.*",
-        "alibabacloud/client":">=1.0.7",
+        "alibabacloud/client":">=1.5.30",
         "phpoffice/phpspreadsheet": ">=1.9.0",
         "guzzlehttp/guzzle": "7.4.x-dev"
     },
