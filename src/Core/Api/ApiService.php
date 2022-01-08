@@ -508,6 +508,7 @@ class ApiService
     static public function cryptData($data, $time = 0)
     {
         $crypt = new Crypt();
+        $crypt->useSigning(false);
         $time || $time = self::$_lifetime;
         $time += time();
         $data = ['data' => $data, 'time' => $time];
@@ -530,6 +531,7 @@ class ApiService
     static public function decryptData($data, $time = 0)
     {
         $crypt = new Crypt();
+        $crypt->useSigning(false);
         $time || $time = time();
         //为保证一个accessToken在所有系统中通用，不能以appKey作为加密KEY
         //$txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
