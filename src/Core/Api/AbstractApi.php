@@ -196,6 +196,17 @@ abstract class AbstractApi extends AbstractService
         if ($this->_accessToken && $this->_accessTokenRequiredLevel > 0) {
             $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
             $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname);
+            $userInfo = ['userId'=>$this->_userMemberId,
+                //TODO:username需要调整
+                'username'=>$this->_userFullname,
+                'fullname'=>$this->_userFullname,
+                'token'=>$this->_accessToken,
+                'appKey'=>$this->_appKey,
+                'appSecret'=>$this->_appSecret
+            ];
+            $this->_di->setShared('user',function() use($userInfo){
+                return new Config($userInfo);
+            });
         }
         $this->_testModel = $this->_di->get('config')->get('testmodel');
     }
