@@ -205,7 +205,7 @@ abstract class AbstractApi extends AbstractService
                 'appSecret'=>$this->_appSecret
             ];
             $this->_di->setShared('user',function() use($userInfo){
-                return new Config($userInfo);
+                return new \Phalcon\Config($userInfo);
             });
         }
         $this->_testModel = $this->_di->get('config')->get('testmodel');
