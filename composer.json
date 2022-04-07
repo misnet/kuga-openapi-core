@@ -18,7 +18,6 @@
             "Kuga\\": "src"
         }
     },
-    "minimum-stability": "dev",
     "repositories": [
         {
             "packagist.org": false
