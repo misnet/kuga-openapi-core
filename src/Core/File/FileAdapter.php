@@ -31,6 +31,9 @@ abstract class FileAdapter extends AbstractService implements FileInterface
         }
     }
 
+    public function setTags($object,$tags=[]){
+
+    }
     protected function validate($filePath, $fileRequire)
     {
         $filesize = filesize($filePath);
