@@ -75,6 +75,26 @@ class Aliyun extends FileAdapter
     }
 
     /**
+     * 给对象设置标签
+     * @param string $object
+     * @param array $tags
+     * @return void
+     * @throws \OSS\Core\OssException
+     */
+    public function setTags($object,$tags=[]){
+        $ossClient = new \OSS\OssClient(
+            $this->option['accessKeyId'], $this->option['accessKeySecret'], $this->option['bucket']['endpoint']
+        );
+        $tagConfig  = new \OSS\Model\TaggingConfig();
+        foreach($tags as $k=>$v) {
+            $tag = new \OSS\Model\Tag($k, $v);
+            $tagConfig->addTag($tag);
+        }
+        if(!empty($tagConfig->getTags())){
+            $ossClient->putObjectTagging($this->option['bucket']['name'],$object,$tagConfig);
+        }
+    }
+    /**
      *
      * {@inheritDoc}
      * @see FileAdapter::upload()

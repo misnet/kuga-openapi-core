@@ -30,4 +30,5 @@ interface FileInterface
     public function getImageInfo($src);
 
     public function getOption();
+    public function setTags($object,$tags = []);
 }
