@@ -3,7 +3,7 @@
     "description":"kuga核心SDK，在https://github.com/misnet/kuga-openapi-sdk 上进行了简化，去掉业务相关的逻辑，只保留框架层级相关接口",
     "type":"library",
     "license": "LGPL-3.0",
-    "version": "2.1.6",
+    "version": "2.1.7",
     "require":{
         "php":">=7.4",
         "kuga/qing":">=1.1.0",
@@ -11,7 +11,7 @@
         "qcloudsms/qcloudsms_php": "0.1.*",
         "alibabacloud/client":">=1.5.30",
         "phpoffice/phpspreadsheet": ">=1.9.0",
-        "guzzlehttp/guzzle": "7.4.x-dev"
+        "guzzlehttp/guzzle": "7.4.5"
     },
     "autoload": {
         "psr-4": {
