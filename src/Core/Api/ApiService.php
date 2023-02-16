@@ -554,7 +554,7 @@ class ApiService
      */
     static private function _responseData($data)
     {
-        $result = ['status' => ApiException::$EXCODE_SUCCESS, 'data' => $data];
+        $result = ['status' => ApiException::$EXCODE_SUCCESS, 'data' => $data,'success'=>true];
         self::beforeResponse($result);
 
         return $result;
@@ -576,7 +576,7 @@ class ApiService
             $msg = ApiException::getExMsg($code);
         }
 
-        $result = ['status' => $code, 'data' => false, 'message'=>$msg];
+        $result = ['status' => $code, 'data' => false, 'message'=>$msg,'success'=>false,'code'=>$code];
         try {
             self::beforeResponse($result);
         } catch (\Exception $e) {
