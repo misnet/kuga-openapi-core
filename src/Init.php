@@ -198,9 +198,12 @@ class Init
     {
         $db = new \Phalcon\Db\Adapter\Pdo\Mysql(
             ['host' => $config->host, 'username' => $config->username, 'password' => $config->password,
-                'port' => $config->port, 'dbname' => $config->dbname, 'charset' => $config->charset,
+                'port' => $config->port, 'dbname' => $config->dbname, 'encoding' => $config->charset,
                 'options' => [
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="' . date('P') . '"'],
+//                    \PDO::ATTR_EMULATE_PREPARES  => false,
+//                    \PDO::ATTR_STRINGIFY_FETCHES => false,
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="' . date('P') . '"',
+                ],
                 'dialectClass' => self::initDialect()]
         );
         if (!$eventsManager) {
@@ -220,6 +223,12 @@ class Init
         $eventsManager = self::$eventsManager;
         $config = self::$config;
         $di = self::$di;
+        \Phalcon\Mvc\Model::setup([
+            'castOnHydrate' => true,
+            'castLastInsertIdToInt'=>true
+        ]);
+        ini_set('phalcon.orm.cast_on_hydrate', 'on');
+        ini_set('phalcon.orm.cast_last_insert_id_to_int', 'on');
         $di->set(
             'dbRead', function () use ($config, $eventsManager) {
             $dbRead = self::createDatabaseAdapter($config->dbread, $eventsManager);
