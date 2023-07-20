@@ -9,6 +9,10 @@
 
 namespace Kuga;
 
+use Phalcon\Logger\AdapterFactory;
+use Phalcon\Logger\Logger;
+use Phalcon\Logger\LoggerFactory;
+
 class Init
 {
 
@@ -23,7 +27,11 @@ class Init
 
     static private $tmpDir = '/tmp';
 
+    static private $loader;
 
+    public static function getLoader(){
+        return self::$loader;
+    }
     public static function getDI()
     {
         return self::$di;
@@ -73,6 +81,7 @@ class Init
         }
         self::$eventsManager = $di->getShared('eventsManager');
         self::$config = new \Phalcon\Config\Config($config);
+        self::$loader        = new \Phalcon\Autoload\Loader();
 
         self::injectLoggerService();
         self::injectConfigService();
@@ -101,10 +110,26 @@ class Init
     private static function injectLoggerService()
     {
         $tmpDir = self::$tmpDir;
-        self::$di->set('logger', function () use ($tmpDir) {
-            return \Phalcon\Logger\Factory::load(
-                ['name' => $tmpDir . '/logger.txt', 'adapter' => 'file']
+        $di = self::$di;
+        self::$di->set('logger', function () use ($tmpDir,$di) {
+            $adapterFactory = new AdapterFactory();
+            $loggerFactory  = new LoggerFactory($adapterFactory);
+            $logger= $loggerFactory->load(
+                [
+                    'name' => 'logger',
+                    'options'=>[
+                        'adapters' => [
+                            'main'=>[
+                                'adapter'=>'stream',
+                                'name'=>$tmpDir.'/logs/main-'.date('Ymd').'.log',
+                            ],
+                        ]
+                    ]
+                ]
             );
+            $config = $di->getShared('config');
+            $logger->setLogLevel($config->debug?Logger::DEBUG:Logger::ERROR);
+            return $logger;
         }, true
         );
     }
@@ -202,7 +227,7 @@ class Init
                 'options' => [
 //                    \PDO::ATTR_EMULATE_PREPARES  => false,
 //                    \PDO::ATTR_STRINGIFY_FETCHES => false,
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="' . date('P') . '"',
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="' . date('P') . '";set sql_mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"'
                 ],
                 'dialectClass' => self::initDialect()]
         );

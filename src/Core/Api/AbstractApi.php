@@ -194,9 +194,14 @@ abstract class AbstractApi extends AbstractService
         //$this->_params = new Parameter($params);
         $this->_params = $params;
         $this->_method = $method;
+        if($this->_accessTokenRequiredLevel ==1 && !$this->_accessToken){
+            throw new ApiException(ApiException::$EXCODE_INVALID_TOKEN);
+        }
+
         if ($this->_accessToken && $this->_accessTokenRequiredLevel > 0) {
-            $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey);
-            $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname);
+            $throwError = $this->_accessTokenRequiredLevel!=2;
+            $this->_userMemberId = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserIdKey,$throwError);
+            $this->_userFullname = $this->_getInfoFromAccessToken($this->_accessToken, $this->_accessTokenUserFullname,$throwError);
             $userInfo = ['userId'=>$this->_userMemberId,
                 //TODO:username需要调整
                 'username'=>$this->_userFullname,
@@ -295,15 +300,19 @@ abstract class AbstractApi extends AbstractService
      * @return \Kuga\Service\unknown|NULL
      * @throws Exception
      */
-    protected function _getInfoFromAccessToken($accessToken, $key = '')
+    protected function _getInfoFromAccessToken($accessToken, $key = '',$throwError=true)
     {
 
         if($this->_accessTokenType === GlobalVar::TOKEN_TYPE_JWT){
-            return $this->_getInfoFromJsonWebToken($accessToken,$key);
+            return $this->_getInfoFromJsonWebToken($accessToken,$key,$throwError);
         }else{
             $at = ApiService::decryptData($accessToken);
             if (!$at) {
-                throw new ApiException(ApiException::$EXCODE_INVALID_ACCESSTOKEN);
+                if($throwError) {
+                    throw new ApiException(ApiException::$EXCODE_INVALID_ACCESSTOKEN);
+                }else {
+                    return null;
+                }
             } else {
                 if ($key) {
                     return !isset($at[$key]) ? null : $at[$key];
@@ -348,14 +357,17 @@ abstract class AbstractApi extends AbstractService
         $jwtService->setSecret($secret);
         return $jwtService->createToken($data,$lifetime);
     }
-    protected function _getInfoFromJsonWebToken($accessToken, $key = '')
+    protected function _getInfoFromJsonWebToken($accessToken, $key = '',$throwError=true)
     {
         $secret = $this->_di->get('config')->get('jwtTokenSecret');
         $jwtService = new JWTService();
         $jwtService->setSecret($secret);
         $at =  $jwtService->validate($accessToken);
         if(!$at){
-            throw new ApiException(ApiException::$EXCODE_INVALID_ACCESSTOKEN);
+            if($throwError)
+                throw new ApiException(ApiException::$EXCODE_INVALID_ACCESSTOKEN);
+            else
+                return null;
         }else{
             if ($key) {
                 return !isset($at[$key]) ? null : $at[$key];
