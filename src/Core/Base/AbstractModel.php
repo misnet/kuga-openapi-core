@@ -141,29 +141,29 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         return $data;
     }
 
-    public function toArray($columns=null):array
-    {
-        $array=[];
-        if(empty($columns)){
-            $array = parent::toArray();
-            $objectVars = get_object_vars($this);
-            $diff = array_diff_key($objectVars, $array);
-            $manager = $this->getModelsManager();
-            foreach($diff as $key => $value) {
-                if($manager->isVisibleModelProperty($this, $key)) {
-                    $array += [$key => $value];
-                }
-            }
-        }
-        if(!empty($columns)){
-            foreach($columns as $v){
-                if(!array_key_exists($v,$array) && isset($this->{$v})){
-                    $array[$v] = $this->{$v};
-                }
-            }
-        }
-        return $array;
-    }
+//    public function toArray($columns=null):array
+//    {
+//        $array=[];
+//        if(empty($columns)){
+//            $array = parent::toArray();
+//            $objectVars = get_object_vars($this);
+//            $diff = array_diff_key($objectVars, $array);
+//            $manager = $this->getModelsManager();
+//            foreach($diff as $key => $value) {
+//                if($manager->isVisibleModelProperty($this, $key)) {
+//                    $array += [$key => $value];
+//                }
+//            }
+//        }
+//        if(!empty($columns)){
+//            foreach($columns as $v){
+//                if(!array_key_exists($v,$array) && isset($this->{$v})){
+//                    $array[$v] = $this->{$v};
+//                }
+//            }
+//        }
+//        return $array;
+//    }
     public function beforeUpdate(){
         return true;
     }
