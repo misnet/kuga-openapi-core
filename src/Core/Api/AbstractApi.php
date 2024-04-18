@@ -83,7 +83,9 @@ abstract class AbstractApi extends AbstractService
 
     protected $_accessTokenUserIdKey = 'uid';
     protected $_accessTokenUserFullname = 'fullname';
-
+    public function getAccessTokenUserIdKey(){
+        return $this->_accessTokenUserIdKey;
+    }
     public function setAccessTokenUserIdKey($k){
         $this->_accessTokenUserIdKey = $k;
     }
