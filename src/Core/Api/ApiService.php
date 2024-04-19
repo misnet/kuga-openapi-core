@@ -77,6 +77,20 @@ class ApiService
      * @return array
      */
     static public function getApiKeys(){
+        $config = self::$di->get('config');
+        if($config->api){
+            $items = $config->api->toArray();
+            $keys = [];
+            if(is_array($items) && !empty($items)){
+                foreach($items as $item){
+                    if(!isset($item['appKey']) || !isset($item['appSecret'])) {
+                        continue;
+                    }
+                    $keys[$item['appKey']] = ['secret'=>$item['appSecret']];
+                }
+            }
+            return $keys;
+        }
         $cacheId = GlobalVar::APPLIST_CACHE_ID;
         $cache   = self::$di->getShared('cache');
         $list    = $cache->get($cacheId);

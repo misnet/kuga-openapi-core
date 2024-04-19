@@ -3,7 +3,7 @@
     "description": "kuga核心SDK，在https://github.com/misnet/kuga-openapi-sdk 上进行了简化，去掉业务相关的逻辑，只保留框架层级相关接口",
     "type": "library",
     "license": "LGPL-3.0",
-    "version": "2.1.10",
+    "version": "2.1.11",
     "require": {
         "php": ">=7.4",
         "kuga/qing": ">=1.1.0",
