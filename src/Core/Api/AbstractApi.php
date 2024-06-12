@@ -249,7 +249,12 @@ abstract class AbstractApi extends AbstractService
     {
         $this->_userMemberId = $uid;
     }
-
+    public function setUserFullname($name){
+        $this->_userFullname = $name;
+    }
+    public function getUserFullname(){
+        return $this->_userFullname;
+    }
     /**
      * 取得传进来的参数数组
      *
