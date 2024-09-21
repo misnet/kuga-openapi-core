@@ -43,7 +43,12 @@ abstract class AbstractApi extends AbstractService
     protected $_userFullname;
 
     protected $_testModel;
-
+    public function setUserFullname($name){
+        $this->_userFullname = $name;
+    }
+    public function getUserFullname(){
+        return $this->_userFullname;
+    }
     /**
      * APP KEY，可用于处理不同调用通道
      * IOS APP, Android APP, Mobile Web, PC Web等要有不同的KEY
