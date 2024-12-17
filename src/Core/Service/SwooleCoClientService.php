@@ -11,16 +11,18 @@ class SwooleCoClientService extends \Kuga\Core\Base\AbstractService{
     public function send($data,$requireReturnData=false)
     {
         $option = $this->_getOption();
-       // \Co\run(function () use ($option, $data) {
-            $client = new \Swoole\Client(SWOOLE_SOCK_TCP);
-            if ($client->connect($option['host'], $option['port'], $option['connectTimeout'])) {
-                $client->send(json_encode($data));
-            }else{
-                throw new \Exception($this->translator->_('Swoole Server Connection failure'));
-            }
-            $client->close();
+        $client = new \Swoole\Client(SWOOLE_SOCK_TCP | SWOOLE_KEEP);
 
-       // });
+        if ($client->connect($option['host'], $option['port'], $option['connectTimeout'])) {
+            $client->send(json_encode($data));
+            if($requireReturnData){
+                return $client->recv();
+            }
+        }else{
+            $client->close();
+            throw new \Exception($this->translator->_('Swoole Server Connection failure'));
+        }
+        $client->close();
     }
     private function _getOption(){
         $config = $this->_di->getShared('config');
