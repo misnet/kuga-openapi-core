@@ -26,11 +26,10 @@ class SwooleCoClientService extends \Kuga\Core\Base\AbstractService{
     }
     private function _getOption(){
         $config = $this->_di->getShared('config');
-        if (!file_exists($config->swoole)) {
+        if (!$config->swoole) {
             return false;
         }
-        $swooleConfigContent = file_get_contents($config->swoole);
-        return \json_decode($swooleConfigContent, true);
+        return $config->swoole->toArray();
     }
     public function __destruct()
     {

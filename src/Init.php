@@ -63,24 +63,42 @@ class Init
     {
         return self::$tmpDir;
     }
+    private static $envConfig = [];
+    private static function readYaml($configYamlFile){
 
+        if(file_exists($configYamlFile)){
+            $callbacks = [
+                '!CONFIG_PATH'=>function($value){
+                    return QING_ROOT_PATH.DS.'config'.DS.$value;
+                }
+            ];
+            $parserConfig = new \Phalcon\Config\Adapter\Yaml($configYamlFile,$callbacks);
+            $newData      = $parserConfig->toArray();
+            return $newData;
+        }
+        return [];
+    }
     /**
      * 初始化系统
      *
      * 如果要更改临时目录，建议在运行setup之前运行setTmpDir();
-     * @param array $config 配置数组
      * @param null $di
      */
-    public static function setup($config = [], $di = null)
+    public static function setup($di = null)
     {
         //json_encode 带有小数的数字时，会变成14位长的精确值，需要修改php.ini的serialize_precision值
         ini_set('serialize_precision', -1);
+        $configYamlFile = QING_ROOT_PATH.DS.'config'.DS.'config.yaml';
+        $configArray = self::readYaml($configYamlFile);
+        $localYamlFile = QING_ROOT_PATH.DS.'config'.DS.'local.yaml';
+        $localConfigArray = self::readYaml($localYamlFile);
+        $configArray = \Qing\Lib\Utils::arrayExtend($configArray,$localConfigArray);
         self::$di = $di;
         if (!self::$di) {
             self::$di = \Phalcon\Di\FactoryDefault::getDefault();
         }
         self::$eventsManager = $di->getShared('eventsManager');
-        self::$config = new \Phalcon\Config\Config($config);
+        self::$config = new \Phalcon\Config\Config($configArray);
         self::$loader        = new \Phalcon\Autoload\Loader();
 
         self::injectLoggerService();
@@ -128,7 +146,7 @@ class Init
                 ]
             );
             $config = $di->getShared('config');
-            $logger->setLogLevel($config->debug?Logger::DEBUG:Logger::ERROR);
+            $logger->setLogLevel($config->path('app.debug')?Logger::DEBUG:Logger::ERROR);
             return $logger;
         }, true
         );
@@ -160,20 +178,25 @@ class Init
         //缓存对象纳入DI
         self::$di->set(
             'cache', function ($prefix = '') use ($config) {
-            if (file_exists($config->cache)) {
-                $cacheConfigContent = file_get_contents($config->cache);
-                $option = \json_decode($cacheConfigContent, true);
+                if(!$config->cache){
+                    throw new \Exception('Cache config not exists');
+                }
+                $option = $config->cache->toArray();
                 if (isset($option['slow']) && $prefix) {
                     $option['slow']['option']['prefix'] = $prefix;
+                }
+                if($option['fast']['engine'] == 'redis'){
+                    if(!$config->redis){
+                        throw new \Exception('Redis config not exists');
+                    }
+                    $option['fast']['option'] = $config->redis->toArray();
                 }
                 if (isset($option['fast']) && $prefix) {
                     $option['fast']['option']['prefix'] = $prefix;
                 }
                 $cache = new \Qing\Lib\Cache($option);
                 return $cache;
-            } else {
-                throw new \Exception('Cache file does not exists');
-            }
+
         }, true
         );
     }
@@ -189,10 +212,10 @@ class Init
         //翻译器
         self::$di->set(
             'translator', function () use ($di, $config) {
-            $locale = $config->system->locale;
+            $locale = $config->path('app.locale');
 
-            if ($config->system->charset) {
-                $locale .= '.' . $config->system->charset;
+            if ($config->path('app.charset')) {
+                $locale .= '.' . $config->path('app.charset');
             }
             $directory['common'] = __DIR__ . '/langs/_common';
             $translator = new \Qing\Lib\Translator\Gettext(array(
@@ -292,7 +315,7 @@ class Init
             ['updateSnapshotOnSave' => false,]
         );
 
-        if ($config->debug) {
+        if ($config->path('app.debug')) {
             $adapter = new \Phalcon\Logger\Adapter\Stream(self::$tmpDir . "/db.log");
             $logger  = new \Phalcon\Logger\Logger('messages',['main'=>$adapter]);
             $eventsManager->attach('db', function ($event, $connection) use ($logger) {
@@ -313,8 +336,8 @@ class Init
         $di = self::$di;
         self::$di->set(
             'sms', function () use ($config, $di) {
-            $adapter = $config->sms->adapter;
-            $smsAdapter = \Kuga\Core\Sms\SmsFactory::getAdapter($adapter, $config->sms->{$adapter}, $di);
+            $adapter = 'Aliyun';
+            $smsAdapter = \Kuga\Core\Sms\SmsFactory::getAdapter($adapter, $config->aliyunsms->toArray(), $di);
 
             return $smsAdapter;
         },true);
@@ -326,7 +349,7 @@ class Init
         self::$di->set('crypt', function () use ($config) {
             $crypt = new \Phalcon\Encryption\Crypt();
             //Please use your private key
-            $crypt->setKey(md5($config->system->copyright));
+            $crypt->setKey(md5($config->path('app.copyright')));
             return $crypt;
         },true);
     }
@@ -337,25 +360,32 @@ class Init
     private static function injectSessionService()
     {
         $config = self::$config;
-        if (file_exists($config->session)) {
             //读取配置
-            $sessionConfigContent = file_get_contents($config->session);
-            $sessonConfig = \json_decode($sessionConfigContent, true);
-            if ($sessonConfig && $sessonConfig['enabled']) {
-                $adapter = $sessonConfig['adapter'];
-                $sessionOption = is_array($sessonConfig['option']) ? $sessonConfig['option'] : [];
+            if ($config->session && $config->session->enabled) {
+                $adapter = $config->session->adapter;
+                $sessionOption = is_array($config->session->option) ? $config->session->option->toArray() : [];
                 if ($sessionOption) {
+                    $session = new \Phalcon\Session\Manager();
+
                     if ($adapter == 'redis') {
-                        $session = new \Phalcon\Session\Adapter\Redis($sessionOption);
-                        $option = $config->redis;
-                        $option = \Qing\Lib\utils::arrayExtend($option, $sessionOption);
+                        if(!$config->redis){
+                            throw new \Exception('Redis config not exists');
+                        }
+                        $redisOption = $config->redis->toArray();
+                        $sessionOption = \Qing\Lib\Utils::arrayExtend($redisOption, $sessionOption);
+
+                        $serializerFactory = new \Phalcon\Storage\SerializerFactory();
+                        $factory = new \Phalcon\Storage\AdapterFactory($serializerFactory);
+                        $redisSession = new \Phalcon\Session\Adapter\Redis($factory,$sessionOption);
+                        $session->setAdapter($redisSession);
                     } else {
-                        $session = new \Phalcon\Session\Adapter\Files($sessionOption);
-                        $option = $sessionOption;
+                        $fileSession = new \Phalcon\Session\Adapter\Stream($sessionOption);
+                        $session->setAdapter($fileSession);
                     }
-                    self::$di->set('session', function () use ($option, $session) {
+                    self::$di->set('session', function () use ( $session) {
                         if (isset($_POST['sessid'])) {
                             session_id($_POST['sessid']);
+                            $session->setId($_POST['sessid']);
                         }
                         //$session = new \Phalcon\Session\Adapter\Redis($option);
                         ini_set('session.cookie_domain', \Qing\Lib\Application::getCookieDomain());
@@ -366,7 +396,6 @@ class Init
                     },true);
                 }
             }
-        }
     }
 
     /**
@@ -377,11 +406,13 @@ class Init
         //NOSQL简单存储器
         $config = self::$config;
         self::$di->set('simpleStorage', function () use ($config) {
-            if (file_exists($config->cache)) {
-                $cacheConfigContent = file_get_contents($config->cache);
-                $option = \json_decode($cacheConfigContent, true);
+            if (!empty($config->cache)) {
+                $option = $config->cache->toArray();
                 if (strtolower($option['fast']['engine']) == 'redis') {
-                    return new \Qing\Lib\SimpleStorage($option['fast']['option']);
+                    if(!$config->redis){
+                        throw new \Exception('Redis config not exists');
+                    }
+                    return new \Qing\Lib\SimpleStorage($config->redis->toArray());
                 } else {
                     throw new \Exception('redis config does not exists');
                 }
@@ -402,7 +433,18 @@ class Init
         $di = self::$di;
         self::$di->set('fileStorage', function () use ($config, $di) {
             $adapterName = $config->fileStorage->adapter;
-            $option = $config->fileStorage->{$adapterName};
+            if(!$adapterName){
+                throw new \Exception('File storage adapter not exists');
+            }
+            if($adapterName === 'aliyun'){
+                if(!$config->aliyun->server){
+                    throw new \Exception('Aliyun  server config not exists');
+                }
+                $option = $config->aliyunoss->toArray();
+                $option = \Qing\Lib\Utils::arrayExtend($option,$config->aliyun->server->toArray());
+            }else{
+                $option = $config->fileStorage->{$adapterName}->toArray();
+            }
             return \Kuga\Core\Service\FileService::factory($adapterName, $option, $di);
         },true);
     }
@@ -416,7 +458,10 @@ class Init
         $config = self::$config;
         $di = self::$di;
         self::$di->set('queue', function () use ($config, $di) {
-            $redisConfig = $config->redis;
+            if(!$config->redis){
+                throw new \Exception('Redis config not exists');
+            }
+            $redisConfig = $config->redis->toArray();
             $redisAdapter = new \Qing\Lib\Queue\Adapter\Redis($redisConfig);
             $queue = new \Qing\Lib\Queue();
             $queue->setAdapter($redisAdapter);
@@ -433,7 +478,7 @@ class Init
         $di = self::$di;
         $config = self::$config;
         $di->set('emailer', function () use ($config, $di) {
-            return new \Kuga\Core\Service\AliEmail($config->email, $di);
+            return new \Kuga\Core\Service\AliEmail($config->aliyunemail->toArray(), $di);
         },true);
     }
 

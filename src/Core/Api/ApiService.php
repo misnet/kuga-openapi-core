@@ -215,7 +215,7 @@ class ApiService
      */
     static public function beforeInvoke($method, $params = null)
     {
-        if(!self::$di->getShared('config')->apiLogEnabled){
+        if(!self::$di->getShared('config')->path('app.apiLogEnabled')){
             return;
         }
         self::$apiLoggerService = new ApiAccessLogService(self::$di);
@@ -231,7 +231,7 @@ class ApiService
      */
     static public function beforeResponse($result)
     {
-        if(!self::$di->getShared('config')->apiLogEnabled){
+        if(!self::$di->getShared('config')->path('app.apiLogEnabled')){
             return;
         }
         self::$invokeId
@@ -456,8 +456,8 @@ class ApiService
             }
             if (class_exists($className)) {
                 //accessToken中的用户主键KEY
-                $accessTokenUserIdKey = self::$di->getShared('config')->accessTokenUserIdKey;
-                $accessTokenUserFullname = self::$di->getShared('config')->accessTokenUserFullname;
+                $accessTokenUserIdKey = self::$di->getShared('config')->path('app.accessTokenUserIdKey');
+                $accessTokenUserFullname = self::$di->getShared('config')->path('app.accessTokenUserFullname');
 
                 $refObj = new \ReflectionClass($className);
                 $modObj = $refObj->newInstance(self::$di);
@@ -479,7 +479,7 @@ class ApiService
                 $modObj->setVersion($version);
                 $modObj->setLocale($locale);
                 $modObj->beforeInvoke();
-                if(self::$di->getShared('config')->apiLogEnabled){
+                if(self::$di->getShared('config')->path('app.apiLogEnabled')){
                     self::$apiLoggerService->setAccessMemberId(
                         self::$invokeId, $modObj->getUserMemberId()
                     );
@@ -597,7 +597,7 @@ class ApiService
         }
 
         $config = self::$di->get('config');
-        if ($debugMsg && $config->debug) {
+        if ($debugMsg && $config->path('app.debug')) {
             $result['debug'] = $debugMsg;
         }
 

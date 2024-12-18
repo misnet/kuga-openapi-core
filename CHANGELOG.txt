@@ -7,3 +7,7 @@ V2.0变化
 （2）将appkey，locale，version，从request body移到request header
 （3）在request header增加 Authorization参数，用于支持JWT，存放JWT的字串
 （4）在request header增加access-token-type参数，用于指定验证类型
+2024.12.17
+v2.2.0变化
+1.去掉众多的配置文件，全部统一到config.yaml文件中
+2.可以按config.yaml的结构配置local.yaml，local.yaml会覆盖config.yaml的配置

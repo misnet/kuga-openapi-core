@@ -24,54 +24,28 @@ class Aliyun extends FileAdapter
     private $initConfigure = [];
 
     /**
-     * options有两项configFile和policyFile
+     * options
      * @param $options
      */
     public function initOption($options)
     {
         $config = $options;
-        $configFile = '';
-        if (file_exists($config['serverEndConfigFile'])) {
-            $configFile = $config['serverEndConfigFile'];
-        }elseif (file_exists($config['configFile'])) {
-            $configFile = $config['configFile'];
-        }else{
-            throw new ServiceException($this->translator->_('aliyun oss config file not exists'));
+        if(!$options['bucket']){
+            throw new ServiceException('bucket is required');
         }
-
-        $configContent = file_get_contents($configFile);
-        $configJson    = json_decode($configContent, true);
-        $key     = 'Bucket';
-        $testKey = 'TestBucket';
-
-        $option['accessKeyId']     = $configJson['AccessKeyId'];
-        $option['accessKeySecret'] = $configJson['AccessKeySecret'];
-        $option['roleArn']         = $configJson['RoleArn'];
-        $option['tokenExpireTime'] = $configJson['TokenExpireTime'];
-        $option['roleSessionName'] = $configJson['RoleSessionName'];
-
-        $option['bucket']['endpoint']        = $configJson[$key]['Endpoint'];
-        $option['bucket']['name']            = $configJson[$key]['Name'];
-        $option['bucket']['hostUrl']         = $configJson[$key]['Host'];
-        $option['bucket']['region']          = $configJson[$key]['Region'];
-        if (file_exists($config['policyFile'])) {
-            $option['policy'] = file_get_contents($config['policyFile']);
+        if(!$options['bucket']['name']){
+            throw new ServiceException('bucket name is required');
         }
-        $this->option              = $option;
-        $this->productionEnvOption = $option;
-        if (isset($configJson[$testKey])) {
-            $testOption             = $option;
-            $testOption['bucket']['endpoint'] = $configJson[$testKey]['Endpoint'];
-            $testOption['bucket']['name']   = $configJson[$testKey]['Name'];
-            $testOption['bucket']['hostUrl']  = $configJson[$testKey]['Host'];
-            $testOption['bucket']['region']   = $configJson[$testKey]['Region'];
-            $this->developEvnOption = $testOption;
+        if(!$options['bucket']['hostUrl']){
+            throw new ServiceException('bucket hostUrl is required');
         }
-        //测试|开发模式下用测试的选项
-        $conf = $this->_di->getShared('config');
-        if ($conf->testmodel && ! empty($this->developEvnOption)) {
-            $this->option = $this->developEvnOption;
+        if(!$options['accessKeyId']){
+            throw new ServiceException('AliyunOSS accessKeyId is required');
         }
+        if(!$options['accessKeySecret']){
+            throw new ServiceException('AliyunOSS accessKeySecret is required');
+        }
+        $this->option     = $options;
     }
 
     /**
@@ -159,13 +133,9 @@ class Aliyun extends FileAdapter
     public function remove($url)
     {
         $config = $this->_di->getShared('config');
-        //非测试环境下可以删除这些对象
-        //测试环境下，当指定的测试bucket和正式的不一样，也可以删除
-        if ( ! $config->testmodel || ($this->developEvnOption && $this->developEvnOption['bucket']['name'] != $this->productionEnvOption['bucket']['name'])) {
-            $ossClient = new \OSS\OssClient($this->option['accessKeyId'], $this->option['accessKeySecret'], $this->option['bucket']['endpoint']);
-            $object    = str_replace($this->option['bucket']['hostUrl'].'/', '', $url);
-            $ossClient->deleteObject($this->option['bucket']['name'], $object);
-        }
+        $ossClient = new \OSS\OssClient($this->option['accessKeyId'], $this->option['accessKeySecret'], $this->option['bucket']['endpoint']);
+        $object    = str_replace($this->option['bucket']['hostUrl'].'/', '', $url);
+        $ossClient->deleteObject($this->option['bucket']['name'], $object);
 
     }
 

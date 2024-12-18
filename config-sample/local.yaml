@@ -1,0 +1,110 @@
+app:
+    testmodel: false
+    debug: true
+    jwtTokenSecret: test
+    apiLogEnabled: false
+    acc: !CONFIG_PATH acc.xml
+    accessTokenUserIdKey: console.uid
+    accessTokenUserFullname: fullname
+    name: XMatch Platform
+    software_copyright: Design by Podorn &copy 2024
+    charset: utf-8
+    locale: zh_CN
+api:
+    0:
+        appKey: 1000
+        appSecret: " "
+dbread:
+    adapter: &DB_ADAPTER mysqlnd
+    host: &DB_HOST mysql8
+    port: &DB_PORT 3306
+    charset: &DB_CHARSEG utf8mb4
+    username: &DB_USER root
+    password: &DB_PASSWORD admin
+    dbname: &DB_NAME match2025
+dbwrite:
+    adapter: *DB_ADAPTER
+    host: *DB_HOST
+    port: *DB_PORT
+    charset: *DB_CHARSEG
+    username: *DB_USER
+    password: *DB_PASSWORD
+    dbname: *DB_NAME
+redis:
+    host: redis
+    port: 6379
+    auth:
+    index: 1
+    prefix: MATCH_
+    lifetime: 3600
+aliyun:
+    sts:
+        accessKeyId: &ALIYUN_STS_ACCESS_KEY_ID
+        aAccessKeySecret: &ALIYUN_STS_ACCESS_KEY_SECRET
+        roleArn: "acs:ram::1680546482100347:role/apists"
+        tokenExpireTime: 3600
+        policyFile: !CONFIG_PATH policy-all.txt
+        roleSessionName:
+    server:
+        accessKeyId:
+        aAccessKeySecret:
+
+aliyunoss:
+    bucket:
+        region:
+        name:
+        endpoint:
+        host:
+aliyunsms:
+    regionId: cn-hangzhou
+    appKey: *ALIYUN_STS_ACCESS_KEY_ID
+    appSecret: *ALIYUN_STS_ACCESS_KEY_SECRET
+    signName:
+    managerMobiles: ""
+    template:
+        changePasswd:
+        register:
+        verify:
+
+aliyunemail:
+    appKey: *ALIYUN_STS_ACCESS_KEY_ID
+    appSecret: *ALIYUN_STS_ACCESS_KEY_SECRET
+    regionId: cn-hangzhou
+    triggerEmail: ""
+
+cache:
+    slow:
+        engine: stream
+        option:
+            storageDir: /tmp
+            lifetime: 86400
+    fast:
+        engine: redis
+
+system:
+    name: XMatch Platform
+    software_copyright: Design by DONNY &copy 2024
+    charset: utf-8
+    locale: zh_CN
+
+
+weixin:
+    token: ""
+    appid: ""
+    appsecret: ""
+    notcheck: true
+queue:
+    adapter: redis
+filestorage:
+    # adapter: localfile, aliyun
+    adapter: aliyun
+    localfile:
+        hostUrl: ""
+        baseDir: data
+        rootDir: ""
+
+session:
+    enabled: false
+    #adapter: stream, redis
+    adapter: stream
+    option:

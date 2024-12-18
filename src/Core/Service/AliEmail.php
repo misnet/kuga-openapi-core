@@ -7,27 +7,24 @@ use AlibabaCloud\Client\Exception\ServerException;
 class AliEmail{
     protected static $config;
     protected static $di;
-    protected static $configFile;
-    public  function __construct($configFile,$di=null){
+    public  function __construct($option,$di=null){
         self::$di   = $di?$di:new \Phalcon\DI\FactoryDefault();;
         $translator = self::$di->getShared('translator');
-        if(!file_exists($configFile)){
+        if(empty($option)){
             $errObj = new ErrorObject();
             $errObj->line = __LINE__;
             $errObj->method = __METHOD__;
             $errObj->class  = __CLASS__;
-            $errObj->msg    = '阿里云的邮件配置文件没配置';
+            $errObj->msg    = '阿里云的邮件配置没配置';
             self::$di->getShared('eventsManager')->fire('qing:errorHappen',$errObj);
-            throw new \Exception($translator->_('阿里云的邮件配置文件不存在'));
+            throw new \Exception($translator->_('阿里云的邮件配置不存在'));
         }
-        $content = file_get_contents($configFile);
-        $option = json_decode($content, true);
         self::$config['regionId'] = '';
         self::$config['appKey'] = '';
         self::$config['appSecret'] = '';
         self::$config['triggerEmail'] = '';
+        self::$config['templateDir'] = '/tmp';
         self::$config = \Qing\Lib\Utils::arrayExtend ( self::$config, $option );
-        self::$configFile = $configFile;
     }
 
     /**
@@ -38,10 +35,10 @@ class AliEmail{
      */
     public function verifyCode($toEmail,$code){
         $locale = self::$di->getShared('translator')->getLocale();
-        $lang = strstr($locale,'.'.self::$di->getShared('config')->system->charset,true);
+        $lang = strstr($locale,'.'.self::$di->getShared('config')->path('app.charset'),true);
 
         $lang = $lang?$lang:'zh_CN';
-        $emailFile = dirname(self::$configFile).DIRECTORY_SEPARATOR.'email-tpls'.DIRECTORY_SEPARATOR.'verify.'.$lang.'.html';
+        $emailFile = dirname(self::$config['templateDir']).DS.'verify.'.$lang.'.html';
         if(file_exists($emailFile)){
             $content = file_get_contents($emailFile);
             $content = str_replace('{verifyCode}',$code,$content);

@@ -21,21 +21,19 @@ class Tencent implements SmsInterface {
      * @var int
      */
     private $smsType = 0;
-    public  function __construct($configFile,$di=null){
+    public  function __construct($option,$di=null){
         self::$di   = $di?$di:\Phalcon\Di\Di::getDefault();
         $translator = self::$di->getShared('translator');
-        if(!file_exists($configFile)){
+        if(!$option){
             $errObj = new ErrorObject();
             $errObj->line = __LINE__;
             $errObj->method = __METHOD__;
             $errObj->class  = __CLASS__;
-            $errObj->msg    = '腾讯云的短信配置文件没配置';
+            $errObj->msg    = '腾讯云的短信配置没配置';
             self::$di->getShared('eventsManager')->fire('qing:errorHappen',$errObj);
 
-            throw new \Exception($translator->_('腾讯云的短信配置文件不存在'));
+            throw new \Exception($translator->_('腾讯云的短信配置不存在'));
         }
-        $content = file_get_contents($configFile);
-        $option = json_decode($content, true);
 
         self::$config['appId'] = '';
         self::$config['appSecret'] = '';
@@ -120,7 +118,7 @@ class Tencent implements SmsInterface {
      * @return boolean
      */
     public  function verifyCode($to,$code){
-        $params = '{"code":"'.$code.'","product":"'.self::$config['productName'].'"}';
+        $params = '{"code":"'.$code.'"}';
         $logMsg = '验证码:'.$code;
         if(isset(self::$config['template']['verify']) && self::$config['template']['verify']){
             return $this->send($to, self::$config['template']['verify'], $params, $logMsg);
@@ -143,7 +141,7 @@ class Tencent implements SmsInterface {
      * @return boolean
      */
     public  function registerCode($to,$code,$extendInfo=array()){
-        $params = '{"code":"'.$code.'","product":"'.self::$config['productName'].'"}';
+        $params = '{"code":"'.$code.'"}';
         $logMsg = '注册验证码:'.$code;
         if(self::$config['template']['register'] && self::$config['template']['register']){
             return $this->send($to, self::$config['template']['register'], $params, $logMsg);

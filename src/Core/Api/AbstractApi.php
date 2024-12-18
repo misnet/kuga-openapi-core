@@ -216,7 +216,7 @@ abstract class AbstractApi extends AbstractService
                 return new Config($userInfo);
             });
         }
-        $this->_testModel = $this->_di->get('config')->get('testmodel');
+        $this->_testModel = $this->_di->get('config')->path('app.testmodel');
     }
 
     /**
@@ -359,14 +359,14 @@ abstract class AbstractApi extends AbstractService
      */
     protected function _createJsonWebToken($data, $lifetime = 0)
     {
-        $secret = $this->_di->get('config')->get('jwtTokenSecret');
+        $secret = $this->_di->get('config')->path('app.jwtTokenSecret');
         $jwtService = new JWTService();
         $jwtService->setSecret($secret);
         return $jwtService->createToken($data,$lifetime);
     }
     protected function _getInfoFromJsonWebToken($accessToken, $key = '',$throwError=true)
     {
-        $secret = $this->_di->get('config')->get('jwtTokenSecret');
+        $secret = $this->_di->get('config')->path('app.jwtTokenSecret');
         $jwtService = new JWTService();
         $jwtService->setSecret($secret);
         $at =  $jwtService->validate($accessToken);
