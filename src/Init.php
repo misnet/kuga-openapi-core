@@ -12,6 +12,7 @@ namespace Kuga;
 use Phalcon\Logger\AdapterFactory;
 use Phalcon\Logger\Logger;
 use Phalcon\Logger\LoggerFactory;
+use Phalcon\Storage\SerializerFactory;
 
 class Init
 {
@@ -109,8 +110,9 @@ class Init
         self::injectSmsService();
         self::injectEmailService();
         self::injectCryptService();
-        self::injectSimpleStorageService();
         self::injectFileStorageService();
+
+        self::injectSimpleStorageService();
         self::injectQueueService();
         self::injectSessionService();
 
@@ -177,26 +179,29 @@ class Init
         $config = self::$config;
         //缓存对象纳入DI
         self::$di->set(
-            'cache', function ($prefix = '') use ($config) {
+            'cache', function () use ($config) {
                 if(!$config->cache){
                     throw new \Exception('Cache config not exists');
                 }
                 $option = $config->cache->toArray();
-                if (isset($option['slow']) && $prefix) {
-                    $option['slow']['option']['prefix'] = $prefix;
+                if(!$option['engine']||!in_array($option['engine'],['stream','redis'])){
+                    throw new \Exception('Cache engine only support stream or redis');
                 }
-                if($option['fast']['engine'] == 'redis'){
-                    if(!$config->redis){
-                        throw new \Exception('Redis config not exists');
-                    }
-                    $option['fast']['option'] = $config->redis->toArray();
-                }
-                if (isset($option['fast']) && $prefix) {
-                    $option['fast']['option']['prefix'] = $prefix;
-                }
-                $cache = new \Qing\Lib\Cache($option);
-                return $cache;
+                $serializerFactory = new SerializerFactory();
+                $chsJsonSerializer = new \Kuga\Core\ChsJsonSerializer();
+                switch($option['engine']){
+                    case 'redis':
+                        $option['option'] = \Qing\Lib\Utils::arrayExtend($config->redis->toArray(),$option['option']);
+                        $option['option']['serializer'] = $chsJsonSerializer;
+                        $adapter = new \Phalcon\Cache\Adapter\Redis($serializerFactory,$option['option']);
 
+                        break;
+                    default:
+                        $adapter = new \Phalcon\Cache\Adapter\Stream($serializerFactory,$option['option']);
+                        break;
+                }
+                $cache = new \Phalcon\Cache\Cache($adapter);
+                return $cache;
         }, true
         );
     }
@@ -398,30 +403,6 @@ class Init
             }
     }
 
-    /**
-     * 简单存储器
-     */
-    private static function injectSimpleStorageService()
-    {
-        //NOSQL简单存储器
-        $config = self::$config;
-        self::$di->set('simpleStorage', function () use ($config) {
-            if (!empty($config->cache)) {
-                $option = $config->cache->toArray();
-                if (strtolower($option['fast']['engine']) == 'redis') {
-                    if(!$config->redis){
-                        throw new \Exception('Redis config not exists');
-                    }
-                    return new \Qing\Lib\SimpleStorage($config->redis->toArray());
-                } else {
-                    throw new \Exception('redis config does not exists');
-                }
-            } else {
-                throw new \Exception('Cache file does not exists');
-            }
-
-        });
-    }
 
     /**
      * 注入文件存储服务
@@ -493,5 +474,33 @@ class Init
                 $dialect->getSqlExpression($arguments[2]));
         });
         return $dialect;
+    }
+    /**
+     * 简单存储器
+     */
+    private static function injectSimpleStorageService()
+    {
+        //NOSQL简单存储器
+        $config = self::$config;
+        self::$di->set('simpleStorage', function () use ($config) {
+            if ($config->cache) {
+                $engine = $config->cache->get('engine');
+                if(!$engine){
+                    throw new \Exception('Cache engine not exists');
+                }
+                $option = $config->cache->get('option');
+                $option = \Qing\Lib\Utils::arrayExtend($config->redis->toArray(), $option->toArray());
+                $serializerFactory = new \Phalcon\Storage\SerializerFactory();
+                if ($engine == 'redis') {
+                    $adapter = new \Phalcon\Storage\Adapter\Redis($serializerFactory, $option);
+                } else {
+                    $adapter = new \Phalcon\Storage\Adapter\Stream($serializerFactory, $option);
+                }
+                return $adapter;
+            } else {
+                throw new \Exception('Cache config not exists');
+            }
+
+        });
     }
 }

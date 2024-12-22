@@ -43,7 +43,7 @@ class ExceptionWorkerService extends AbstractService
     //private $dbIndex = 1;
     /**
      *
-     * @var \Qing\Lib\SimpleStorage
+     * @var \Phalcon\Storage\Adapter\AdapterInterface
      */
     private $storage;
 
@@ -66,15 +66,15 @@ class ExceptionWorkerService extends AbstractService
     public function push(ErrorObject $err)
     {
         $now = $err->time ? $err->time : time();
-        $id  = $this->storage->incrementBy(self::PREFIX.'-'.self::LOG_ID_NAME);
-        $this->storage->addToSortedSet(self::PREFIX.'-'.self::LOG_LIST, $id, $now);
-        $this->storage->setToHash(
+        $id  = $this->storage->increment(self::PREFIX.'-'.self::LOG_ID_NAME);
+        $this->storage->getAdapter()->zAdd(self::PREFIX.'-'.self::LOG_LIST, $id, $now);
+        $this->storage->getAdapter()->hMSet(
             self::PREFIX.'-'.self::LOG_KEY.'-'.$id,
             ['class' => $err->class, 'method' => $err->method, 'createTime' => $now, 'msg' => $err->msg,
              'ip'    => \Qing\Lib\Utils::getClientIp(), 'line' => $err->line, 'noticeTryTime' => 0, 'noticedTime' => 0]
         );
         //记录通知队列
-        $this->storage->prependToList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, $id);
+        $this->storage->getAdapter()->LPush(self::PREFIX.'-'.self::ERR_NOTICE_LIST, $id);
 
         return $id;
     }
@@ -86,10 +86,10 @@ class ExceptionWorkerService extends AbstractService
      */
     public function noticeDevops($limit = 10)
     {
-        $list = $this->storage->getList(self::PREFIX.'-'.self::ERR_NOTICE_LIST, 0, $limit);
+        $list = $this->storage->getAdapter()->LRange(self::PREFIX.'-'.self::ERR_NOTICE_LIST, 0, $limit);
         if ($list) {
             foreach ($list as $id) {
-                $errorInfo       = $this->storage->getFromHash(self::PREFIX.'-'.self::LOG_KEY.'-'.$id);
+                $errorInfo       = $this->storage->getAdapter()->hGetAll(self::PREFIX.'-'.self::LOG_KEY.'-'.$id);
                 $errorInfo['id'] = $id;
                 $this->errorNotice($errorInfo);
             }

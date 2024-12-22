@@ -38,25 +38,26 @@ redis:
     index: 0
     prefix:
     lifetime: 3600
+    defaultSerializer: Php
 
 aliyun:
     sts:
         accessKeyId:
-        aAccessKeySecret:
+        accessKeySecret:
         roleArn:
         tokenExpireTime: 3600
         policyFile: !CONFIG_PATH aliyunoss/policy-all.txt
         roleSessionName:
     server:
         accessKeyId:
-        aAccessKeySecret:
+        accessKeySecret:
 
 aliyunoss:
     bucket:
         region:
         name:
         endpoint:
-        host:
+        hostUrl:
 
 aliyunsms:
     regionId:
@@ -75,14 +76,11 @@ aliyunemail:
     regionId: cn-hangzhou
     triggerEmail: ""
     templateDir: !CONFIG_PATH email-tpls
+    senderAlias:
 cache:
-    slow:
-        engine: stream
-        option:
-            storageDir: /tmp
-            lifetime: 86400
-    fast:
-        engine: redis
+    engine: stream
+    option:
+        defaultSerializer: Php
 
 
 weixin:

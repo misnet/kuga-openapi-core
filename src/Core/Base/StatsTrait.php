@@ -12,7 +12,7 @@ trait  StatsTrait{
         $this->storage = $this->getDI()->getShared('simpleStorage');
     }
     /**
-     * @var \Qing\Lib\SimpleStorage
+     * @var \Phalcon\Storage\Adapter\AdapterInterface
      */
     protected $storage;
     /**
@@ -29,7 +29,7 @@ trait  StatsTrait{
      */
     protected function _addToSet($prefixKey,$value){
         $id = $this->{$this->getPrimaryField()};
-        return $this->storage->addToSet($prefixKey.$id,$value);
+        return $this->storage->getAdapter()->sAdd($prefixKey.$id,$value);
     }
 
     /**
@@ -39,7 +39,7 @@ trait  StatsTrait{
      */
     protected function _deleteFromSet($prefixKey,$value){
         $id = $this->{$this->getPrimaryField()};
-        return $this->storage->deleteFromSet($prefixKey.$id,$value);
+        return $this->storage->getAdapter()->sRem($prefixKey.$id,$value);
     }
 
     /**
@@ -50,7 +50,7 @@ trait  StatsTrait{
      */
     protected function _isInSet($prefixKey,$value){
         $id = $this->{$this->getPrimaryField()};
-        return $this->storage->isInSet($prefixKey.$id,$value);
+        return $this->storage->getAdapter()->sIsMember($prefixKey.$id,$value);
     }
 
     /**
@@ -60,7 +60,7 @@ trait  StatsTrait{
      */
     protected function _countSet($prefixKey){
         $id = $this->{$this->getPrimaryField()};
-        return $this->storage->countSet($prefixKey.$id);
+        return $this->storage->getAdapter()->sCard($prefixKey.$id);
     }
     /**
      * 统计指标计数增加
@@ -72,7 +72,7 @@ trait  StatsTrait{
             throw new \Exception($this->_('统计计数范围只能在 -99,999,999 和 99,999,999之间'));
         }
         $id = $this->{$this->getPrimaryField()};
-        return $this->storage->incrementBy($prefixKey.$id,$amount);
+        return $this->storage->increment($prefixKey.$id,$amount);
     }
 
     /**
@@ -238,7 +238,7 @@ trait  StatsTrait{
             $fetchKeys[] = 'cntRealShared';
         }
         $mapping = [];
-        $this->storage->begin();
+        $this->storage->getAdapter()->multi();
         $index=0;
         foreach($ids as $id){
             foreach($fetchKeys as $k){
@@ -250,11 +250,11 @@ trait  StatsTrait{
         if(in_array('cntLiked',$fetchKeys)) {
             foreach ($ids as $id) {
                 $mapping['likedSet'.$id] = $index;
-                $this->storage->countSet($this->statsKey . '-likedSet-' . $id);
+                $this->storage->getAdapter()->sCard($this->statsKey . '-likedSet-' . $id);
                 $index++;
             }
         }
-        $result = $this->storage->commit();
+        $result = $this->storage->getAdapter()->exec();
         $data   = [];
         $i = 0;
         foreach($ids as $id) {
@@ -313,7 +313,7 @@ trait  StatsTrait{
         }
         $mapping = [];
         $index = 0;
-        $this->storage->begin();
+        $this->storage->getAdapter()->multi();
         foreach($fetchKeys as $k){
             $mapping[$k] = $index;
             $f=$this->_getStats($this->statsKey.'-'.$k.'-');
@@ -325,7 +325,7 @@ trait  StatsTrait{
             $mapping['likedSet'] = $index;
             $this->_countSet($this->statsKey.'-likedSet-');
         }
-        $result = $this->storage->commit();
+        $result = $this->storage->getAdapter()->exec();
         $data   = [];
         foreach($fetchKeys as $i=>$k){
             //$data[$k] = intval($result[$i]);

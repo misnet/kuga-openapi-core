@@ -91,10 +91,14 @@ class ApiService
             }
             return $keys;
         }
-        $cacheId = GlobalVar::APPLIST_CACHE_ID;
-        $cache   = self::$di->getShared('cache');
-        $list    = $cache->get($cacheId);
-        return $cache->get($cacheId)??[];
+        try{
+            $cacheId = GlobalVar::APPLIST_CACHE_ID;
+            $cache   = self::$di->getShared('cache');
+            $list    = $cache->get($cacheId);
+            return $list??[];
+        }catch (\Exception $e){
+            return [];
+        }
     }
 
     /**
@@ -251,7 +255,11 @@ class ApiService
         $cache   = self::$di->getShared('cache');
 
         $cacheKey= 'API_METHOD_LIST_'.self::$_appKey.'_'.$_SERVER['HTTP_HOST'];
-        $data    = $cache->get($cacheKey);
+        try{
+            $data    = $cache->get($cacheKey);
+        }catch (\Exception $e){
+            $data = [];
+        }
         if(empty(self::$methodList) && $data){
             self::$methodList = $data;
         }else{
@@ -267,7 +275,11 @@ class ApiService
                 }
             }
             $lifetime = 600;
-            $cache->set($cacheKey,self::$methodList,$lifetime);
+            try{
+                $cache->set($cacheKey,self::$methodList,$lifetime);
+            }catch(\Exception $e){
+
+            }
         }
     }
     static private function _parseApiJsonCategory($configCategory){

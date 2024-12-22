@@ -3,6 +3,7 @@
 namespace Kuga\Core\Service;
 
 use Phalcon\Di\FactoryDefault;
+use Phalcon\Storage\Adapter\Redis;
 
 /**
  * API记录访问日志
@@ -28,7 +29,7 @@ class ApiAccessLogService
 
     /**
      *
-     * @var \Qing\Lib\SimpleStorage
+     * @var \Phalcon\Storage\Adapter\AdapterInterface
      */
     private $storage;
 
@@ -57,17 +58,22 @@ class ApiAccessLogService
      */
     public function init($method, $params)
     {
-        $id = $this->storage->incrementBy(self::PREFIX.':'.self::LOG_ID_NAME);
+
+        $id = $this->storage->increment(self::PREFIX.':'.self::LOG_ID_NAME);
+        $adapter = $this->storage->getAdapter();
+        if(!$this->storage instanceof Redis){
+            throw new \Exception('APIAccessLog Storage must be Redis');
+        }
         //$this->storage->prependToList(self::PREFIX.':'.self::LOG_LIST, $id);
-        $this->storage->setToHash(
+        $adapter->hMSet(
             self::PREFIX.':LOG:'.$id, ['method'     => $method,
-                'params'     => $params,
+                'params'     => \json_encode($params,\JSON_UNESCAPED_UNICODE),
                 'createTime' => microtime(true),
                 'ip'         => \Qing\Lib\Utils::getClientIp(
                 )]
         );
-        $this->storage->addToSortedSet(
-            self::PREFIX.':'.self::LOG_LIST, $id, time()
+        $adapter->zAdd(
+            self::PREFIX.':'.self::LOG_LIST, time(), $id
         );
 
         return $id;
@@ -75,15 +81,17 @@ class ApiAccessLogService
 
     public function setResult($id, $result)
     {
-        $this->storage->setToHash(
+        $adapter = $this->storage->getAdapter();
+        $adapter->hMSet(
             self::PREFIX.':LOG:'.$id,
-            ['result' => $result, 'responseTime' => microtime(true)]
+            ['result' => \json_encode($result,\JSON_UNESCAPED_UNICODE), 'responseTime' => microtime(true)]
         );
     }
 
     public function setAccessMemberId($id, $memberId)
     {
-        $this->storage->setToHash(
+        $adapter = $this->storage->getAdapter();
+        $adapter->hMSet(
             self::PREFIX.':LOG:'.$id, ['memberId' => $memberId]
         );
     }
@@ -93,7 +101,12 @@ class ApiAccessLogService
      */
     public function flush()
     {
-        $this->storage->deleteKeys(self::PREFIX.':*');
+        $adapter = $this->storage->getAdapter();
+        $keys    = $this->storage->getKeys(self::PREFIX.':*');
+        $adapter->delete($keys);
+//        if ($keys) {
+//            $adapter->del($keys);
+//        }
     }
 
     /**
@@ -110,32 +123,34 @@ class ApiAccessLogService
             $list = $this->getList(1, $total, $fromTime, $endTime);
             if ( ! empty($list)) {
                 $ids = [];
+                $adapter = $this->storage->getAdapter();
                 foreach ($list as $item) {
                     $ids[] = self::PREFIX.':LOG:'.$item['id'];
-                    $this->storage->deleteFromSortedSet(
+                    $adapter->zRem(
                         self::PREFIX.':'.self::LOG_LIST, $item['id']
                     );
                 }
-                $this->storage->delete($ids);
+                $adapter->del($ids);
             }
         }
     }
 
     public function removeByIds($ids)
     {
-        $this->storage->begin();
+        $adapter = $this->storage->getAdapter();
+        $adapter->multi();
         if ($ids) {
             $removeIds = [];
             foreach ($ids as $id) {
                 $removeIds[] = self::PREFIX.':LOG:'.$id;
-                $this->storage->deleteFromSortedSet(
+                $adapter->zRem(
                     self::PREFIX.':'.self::LOG_LIST, $id
                 );
             }
-            $this->storage->delete($removeIds);
+            $adapter->del($removeIds);
         }
 
-        $this->storage->commit();
+        $adapter->exec();
     }
 
     /**
@@ -145,13 +160,13 @@ class ApiAccessLogService
      */
     public function count($startTime = '-inf', $endTime = '+inf')
     {
-        //return $this->storage->getListLength(self::PREFIX.':'.self::LOG_LIST);
+        $adapter = $this->storage->getAdapter();
         $startTime = intval($startTime);
         $startTime || $startTime = '-inf';
 
         $endTime = intval($endTime);
         $endTime || $endTime = '+inf';
-        return $this->storage->getSortedSetLengthByScore(
+        return $adapter->zCount(
             self::PREFIX.':'.self::LOG_LIST, $startTime, $endTime
         );
     }
@@ -178,16 +193,26 @@ class ApiAccessLogService
         $endTime = intval($endTime);
         $endTime || $endTime = '+inf';
 
-        //$list  =  $this->storage->getList(self::PREFIX.':'.self::LOG_LIST,$start,$end);
-        $list = $this->storage->getFromSortedSetByScore(
-            self::PREFIX.':'.self::LOG_LIST, $startTime, $endTime, false,
-            $limit, $start, $revert
-        );
+        $adapter = $this->storage->getAdapter();
+
+        $options = ['withscores'=>false];
+        if($limit!==null && $start!==null){
+            $options['limit']= [$start,$limit];
+        }
+        if($revert){
+            $list = $adapter->zRevRangeByScore(self::PREFIX.':'.self::LOG_LIST, $endTime,$start,$options);
+        }else{
+            $list = $adapter->zRangeByScore(self::PREFIX.':'.self::LOG_LIST, $startTime, $endTime,$options);
+        }
+//        $list = $adapter->getFromSortedSetByScore(
+//            self::PREFIX.':'.self::LOG_LIST, $startTime, $endTime, false,
+//            $limit, $start, $revert
+//        );
 
         if ($list) {
             $array = [];
             foreach ($list as $invokeId) {
-                $tmp       = $this->storage->getFromHash(
+                $tmp       = $adapter->hGetAll(
                     self::PREFIX.':LOG:'.$invokeId
                 );
                 $tmp['id'] = $invokeId;
@@ -198,6 +223,8 @@ class ApiAccessLogService
                 } else {
                     $tmp['duration'] = -1;
                 }
+                $tmp['params'] = json_decode($tmp['params'],true);
+                $tmp['result'] = json_decode($tmp['result'],true);
                 $array[] = $tmp;
             }
 

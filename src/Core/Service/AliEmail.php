@@ -70,6 +70,7 @@ class AliEmail{
                 ->method('POST')
                 ->options([
                     'query' => [
+                        'FromAlias'=>self::$config['senderAlias']??null,
                         'AccountName' => self::$config['triggerEmail'],
                         'ToAddress' => $toEmail,
                         'AddressType'=>'1',
