@@ -192,7 +192,7 @@ class Init
                 switch($option['engine']){
                     case 'redis':
                         $option['option'] = \Qing\Lib\Utils::arrayExtend($config->redis->toArray(),$option['option']);
-                        $option['option']['serializer'] = $chsJsonSerializer;
+//                        $option['option']['serializer'] = $chsJsonSerializer;
                         $adapter = new \Phalcon\Cache\Adapter\Redis($serializerFactory,$option['option']);
 
                         break;
