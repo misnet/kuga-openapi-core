@@ -2,10 +2,10 @@ app:
     testmodel: false
     debug: true
     apiLogEnabled: false
+    jwtTokenSecret: 123456
     acc: !CONFIG_PATH acc.xml
     accessTokenUserIdKey: console.uid
     accessTokenUserFullname: fullname
-    jwtTokenSecret:
     name: SYSTEM name
     software_copyright: Design by DONNY &copy 2025
     charset: utf-8

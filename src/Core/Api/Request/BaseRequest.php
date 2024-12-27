@@ -28,36 +28,39 @@ class BaseRequest implements RequestInterface
     {
         return $this->_method;
     }
+    private function _getHeader($name){
+        return isset($this->_requestHeaders[$name])?$this->_requestHeaders[$name]:null;
+    }
 
     public function getAccessToken()
     {
-        return $this->_get('access_token');
+        return $this->_getHeader('Access_Token');
     }
 
     public function getAccessTokenType()
     {
-        return $this->_get('access-token-type');
+        return $this->_getHeader('Access-Token-Type');
     }
     public function getAppKey()
     {
-        return $this->_get('appkey');
+        return $this->_getHeader('Appkey');
     }
     public function getAppSecret(){
         return $this->_secret;
     }
     public function getVersion()
     {
-        return $this->_get('version');
+        return $this->_getHeader('Version');
     }
 
     public function getSign()
     {
-        return $this->_get('sign');
+        return $this->_getHeader('Sign');
     }
 
     public function getLocale()
     {
-        return $this->_get('locale');
+        return $this->_getHeader('Locale');
     }
 
     /**
@@ -70,12 +73,12 @@ class BaseRequest implements RequestInterface
         $data = $this->_data;
 
         //$data = $this->_unset('access_token', $data);
-        $data = $this->_unset('method', $data);
-        $data = $this->_unset('appkey', $data);
-        $data = $this->_unset('format', $data);
-        $data = $this->_unset('sign', $data);
-        $data = $this->_unset('locale', $data);
-        $data = $this->_unset('version', $data);
+//        $data = $this->_unset('method', $data);
+//        $data = $this->_unset('appkey', $data);
+//        $data = $this->_unset('format', $data);
+//        $data = $this->_unset('sign', $data);
+//        $data = $this->_unset('locale', $data);
+//        $data = $this->_unset('version', $data);
         return $data;
     }
 
@@ -91,7 +94,7 @@ class BaseRequest implements RequestInterface
         $this->_secret = $secret;
         $requestSign = $this->getSign();
         $data        = $this->_data;
-        $data = $this->_unset('sign', $data);
+        //$data = $this->_unset('sign', $data);
         $sign = self::createSign($secret, $data);
         return $sign === $requestSign;
     }
@@ -131,7 +134,7 @@ class BaseRequest implements RequestInterface
      */
     public function getFormat()
     {
-        $format = $this->_get('format');
+        $format = $this->_getHeader('Format');
         if ( ! $format) {
             $format = 'json';
         }

@@ -1,8 +1,8 @@
 app:
     testmodel: false
     debug: true
-    jwtTokenSecret: test
     apiLogEnabled: false
+    jwtTokenSecret: 123456
     acc: !CONFIG_PATH acc.xml
     accessTokenUserIdKey: console.uid
     accessTokenUserFullname: fullname

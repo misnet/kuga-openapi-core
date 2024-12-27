@@ -102,11 +102,14 @@ class ApiAccessLogService
     public function flush()
     {
         $adapter = $this->storage->getAdapter();
-        $keys    = $this->storage->getKeys(self::PREFIX.':*');
-        $adapter->delete($keys);
-//        if ($keys) {
-//            $adapter->del($keys);
-//        }
+        $keys    = $this->storage->getKeys(self::PREFIX.':');
+        if ($keys) {
+            $prefix=$this->storage->getPrefix();
+            foreach($keys as &$k){
+                $k = str_ireplace($prefix,'',$k);
+            }
+            $adapter->del($keys);
+        }
     }
 
     /**

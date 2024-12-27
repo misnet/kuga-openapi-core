@@ -1,3 +1,17 @@
+
+v2.3.1变化
+1 v3将非业务用的参数全部转到header中读取，同时参数名称重新调整，这些参数包括Sign,Format,Appkey,Locale,Version等
+
+v2.3.0变化
+1、弃用\Qing\Lib\Cache，改用Phalcon\Cache
+2、不再使用\Qing\Lib\SimpleStorage，改用Phalcon\Storage的redis或stream，相关接口需要调整
+3、cache的配置项不再用slow和fast
+
+2024.12.17
+v2.2.0变化
+1.去掉众多的配置文件，全部统一到config.yaml文件中
+2.可以按config.yaml的结构配置local.yaml，local.yaml会覆盖config.yaml的配置
+
 2020.6.15
 V2.0变化
 1、accessToken支持KUGA和JWT两种，KUGA即升级前版本默认支持的token方式
@@ -6,12 +20,5 @@ V2.0变化
 （1）将公用参数传递从body改到headers中，同时增加access-token-type参数，值有JWT和KUGA两种，JWT用于支持JWT方式的token，KUGA还是原来的验证方式
 （2）将appkey，locale，version，从request body移到request header
 （3）在request header增加 Authorization参数，用于支持JWT，存放JWT的字串
-（4）在request header增加access-token-type参数，用于指定验证类型
-2024.12.17
-v2.2.0变化
-1.去掉众多的配置文件，全部统一到config.yaml文件中
-2.可以按config.yaml的结构配置local.yaml，local.yaml会覆盖config.yaml的配置
-v2.3.0变化
-1、弃用\Qing\Lib\Cache，改用Phalcon\Cache
-2、不再使用\Qing\Lib\SimpleStorage，改用Phalcon\Storage的redis或stream，相关接口需要调整
-3、cache的配置项不再用slow和fast
+（4）在request header增加Access-Token-Type参数，用于指定验证类型
+
