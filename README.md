@@ -15,11 +15,11 @@
 ## API参数
 有两种类型，一种是业务参数，一种是公共参数，公共参数一般是每个基本都需要或可以传递的内容。业务参数是指和当前接口有关的参数。
 在本应用中，公共参数一般有:
-- appkey appkey值，需要系统之前有分配
-- version 版本号
-- locale  语言，值有en_US，zh_CN
-- access-token-type token类型，值有KUGA、JWT
-- access_token 用于KUGA类型的token传值
+- Appkey appkey值，需要系统之前有分配
+- Version 版本号
+- Locale  语言，值有en_US，zh_CN
+- Access-Token-Type token类型，值有KUGA、JWT
+- Access_Token 用于KUGA类型的token传值
 - Authorization  用于JWT的token传值，一般是"Bearer "再加token字串
 
 ## token类型
@@ -28,9 +28,9 @@
 KUGA类型token特点：
 - 所有传参全部通过\Kuga\Core\Api\Request\BaseRequest或\Kuga\Core\Api\Request\JWTRequest 的构造函数传递
 - headers实际不传参数
-- 传递的参数需要appkey， appkey是在配置文件中与appsecret配套的一对
-- 传递的参数需要sign，sign是签名串，根据一定的规则生成的签名串。因为需要签名，客户端需要知道签名规则
-- 生成sign值的参数包括业务参数以及公共参数
+- 传递的参数需要Appkey， Appkey是在配置文件中与appsecret配套的一对
+- 传递的参数需要Sign，Sign是签名串，根据一定的规则生成的签名串。因为需要签名，客户端需要知道签名规则
+- 生成Sign值的参数包括业务参数以及公共参数
 
 JWT特点：
 - 业务参数通过\Kuga\Core\Api\Request\JWTRequest 的构造函数传递
@@ -45,11 +45,19 @@ Kuga\Init::setTmpDir('/opt/tmp);
 Kuga\Init::setup($customConfig);
 ```
 ## API网关调用示例：
+在local.yaml中配置api
 ```
-$apiKeys = [
-    ['1000']=>['secret'=>'abc'],
-    ['1001']=>['secret'=>'def']
-];
+api:
+    0:
+        appKey: 1000
+        appSecret: "应用秘钥1"
+    1:
+        appKey: 1001
+        appSecret: "应用秘钥2"
+```
+在代码中调用
+```
+$apiKeys = $this->getDI()->get('config')->api;
 $requestObject = new \Kuga\Core\Api\Request\JWTRequest($_POST);
 $requestObject->setOrigRequest($_POST);
 $requestObject->setMethod('acc.app.list');
@@ -63,20 +71,17 @@ $result = \Kuga\Core\Api\ApiService::response($requestObject);
 echo json_encode($result);
 ```
 
-上面示例提到的api.json参见https://github.com/misnet/apidocs
+上面示例提到的api.json参见https://github.com/misnet/acc-api的api-jsons目录
 
 ## sign签名串生成规则
 将所有参数按字母a-z顺序排序，以Key+Value的形式串起来，头尾再加上secret值，例现在有这些参数：
-系统分配的appkey是1001，appsecret是abc
-
-- method: member.register
-- appkey: 1001
-- access_token: 999
+系统分配的Appkey是1001，Appsecret是abc
+- roleId: 999
 - uid: 123
 
-按Key升序，将Key+Value的顺序排序来串，头尾加上appsecret的值就是：
+按Key升序，将Key+Value的顺序排序来串，头尾加上Appsecret的值就是：
 ```
-abcaccess_token999appkey1001methodmember.registeruid123abc
+abcroleId999uid123abc
 ```
 然后将上面这个字串进行md5加密，再转为大写，就是sign的值
 
@@ -106,9 +111,17 @@ class TestApi extends AbstractApi{
   "data": {
     "list": [],
     "total": 10,
-    "userId": 10,
+    "userId": 10
   },
-  "status": 0
+  "success": true
 }
 ```
-当有错误发生时status值为非零，data值为错误信息
+当有错误发生时status值为非零，message值为错误信息
+```json
+{
+  "success": false,
+  "data": false,
+  "code": "错误代码",
+  "message": "错误信息"
+}
+```
