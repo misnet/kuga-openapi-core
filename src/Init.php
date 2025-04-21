@@ -188,11 +188,9 @@ class Init
                     throw new \Exception('Cache engine only support stream or redis');
                 }
                 $serializerFactory = new SerializerFactory();
-                $chsJsonSerializer = new \Kuga\Core\ChsJsonSerializer();
                 switch($option['engine']){
                     case 'redis':
                         $option['option'] = \Qing\Lib\Utils::arrayExtend($config->redis->toArray(),$option['option']);
-//                        $option['option']['serializer'] = $chsJsonSerializer;
                         $adapter = new \Phalcon\Cache\Adapter\Redis($serializerFactory,$option['option']);
 
                         break;
@@ -250,9 +248,14 @@ class Init
     public static function createDatabaseAdapter($config, $eventsManager = null)
     {
         $db = new \Phalcon\Db\Adapter\Pdo\Mysql(
-            ['host' => $config->host, 'username' => $config->username, 'password' => $config->password,
-                'port' => $config->port, 'dbname' => $config->dbname, 'encoding' => $config->charset,
+            ['host' => $config->host,
+                'username' => $config->username,
+                'password' => $config->password,
+                'port' => $config->port,
+                'dbname' => $config->dbname,
+                'encoding' => $config->charset,
                 'options' => [
+                    \PDO::ATTR_PERSISTENT=>!!$config->isPersistent,
 //                    \PDO::ATTR_EMULATE_PREPARES  => false,
 //                    \PDO::ATTR_STRINGIFY_FETCHES => false,
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone ="' . date('P') . '";set sql_mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"'

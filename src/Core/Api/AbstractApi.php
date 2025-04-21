@@ -10,6 +10,7 @@ namespace Kuga\Core\Api;
 
 use GuzzleHttp\Client;
 use Kuga\Core\Api\Request\BaseRequest;
+use Kuga\Core\Api\Request\RequestInterface;
 use Kuga\Core\Base\AbstractService;
 use Kuga\Core\GlobalVar;
 use Kuga\Core\Api\Exception as ApiException;
@@ -27,7 +28,10 @@ abstract class AbstractApi extends AbstractService
      * @var array
      */
     protected $_params;
-
+    /**
+     * @var RequestInterface
+     */
+    protected $_request;
     /**
      * API方法
      *
@@ -506,5 +510,8 @@ abstract class AbstractApi extends AbstractService
         $provider = new Client();
         $res = $provider->request('post',$hostUrl,['body'=>$params]);
         return $res->getBody();
+    }
+    public function setRequest($req){
+        $this->_request  = $req;
     }
 }
