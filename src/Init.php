@@ -298,7 +298,7 @@ class Init
         //实现对model的meta缓存
         $di->set(
             "modelsCache", function () use ($di) {
-            return $di->get('cache')->getCacheEngine();
+            return $di->get('cache');
         },true);
         self::$di['modelsMetadata'] = function () {
             $metaData = new \Phalcon\Mvc\Model\MetaData\Stream(
