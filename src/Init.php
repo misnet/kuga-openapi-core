@@ -71,6 +71,12 @@ class Init
             $callbacks = [
                 '!CONFIG_PATH'=>function($value){
                     return QING_ROOT_PATH.DS.'config'.DS.$value;
+                },
+                '!TMP_PATH'=>function($value){
+                    return QING_TMP_PATH.DS.$value;
+                },
+                '!ROOT_PATH'=>function($value){
+                    return QING_ROOT_PATH.DS.$value;
                 }
             ];
             $parserConfig = new \Phalcon\Config\Adapter\Yaml($configYamlFile,$callbacks);
