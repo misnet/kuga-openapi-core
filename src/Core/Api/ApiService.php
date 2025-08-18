@@ -495,6 +495,7 @@ class ApiService
 
                 $modObj->setVersion($version);
                 $modObj->setLocale($locale);
+                $modObj->setRequest($req);
                 $modObj->beforeInvoke();
                 if(self::$di->getShared('config')->path('app.apiLogEnabled')){
                     self::$apiLoggerService->setAccessMemberId(
