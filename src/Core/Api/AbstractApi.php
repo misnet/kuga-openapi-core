@@ -79,6 +79,7 @@ abstract class AbstractApi extends AbstractService
     protected $_accessTokenRequiredLevel = 0;
     protected $_accessTokenType = 'KUGA'; //值有KUGA，JWT两种
 
+    protected $_responseHeaders = [];
     private $_logger;
 
     protected $_accessTokenUserIdKey = 'uid';
@@ -506,5 +507,11 @@ abstract class AbstractApi extends AbstractService
         $provider = new Client();
         $res = $provider->request('post',$hostUrl,['body'=>$params]);
         return $res->getBody();
+    }
+    protected function addResponseHeader($k,$v){
+        $this->_responseHeaders[$k] = $v;
+    }
+    public function getResponseHeaders(){
+        return $this->_responseHeaders;
     }
 }

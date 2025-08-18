@@ -61,6 +61,8 @@ class ApiService
 
     static private $apiJsonConfigFile = '';
 
+    static private $responseHeaders=[];
+
     /**
      * 初始化API JSON配置文件
      *
@@ -69,6 +71,9 @@ class ApiService
     static public function initApiJsonConfigFile($configFile)
     {
         self::$apiJsonConfigFile = $configFile;
+    }
+    static public function getResponseHeaders(){
+        return self::$responseHeaders;
     }
 
     /**
@@ -502,6 +507,7 @@ class ApiService
                     //2019.8.26增加传参$validParams
                     //$result = $modObj->$action($validParams);
                     $result = call_user_func_array([$modObj,$action],[$validParams]);
+                    self::$responseHeaders = $modObj->getResponseHeaders();
                     return self::_responseData($result);
                 } else {
                     return self::_responseError(
