@@ -1,5 +1,5 @@
 <?php
-namespace Kuga\Plugin;
+namespace Kuga\Core\Plugin;
 use Kuga\Core\Base\ErrorObject;
 use Kuga\Core\Service\ExceptionWorkerService;
 
