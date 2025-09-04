@@ -58,7 +58,7 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(isset($op['talias'])){
             self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
         }
-        return parent::hasOne($fi, $namespace."\\".$rt, $rf,$op);
+        return parent::hasOne($fi, $rt, $rf,$op);
     }
 
     public function belongsTo($fi,$rt,$rf,$op=array()):Relation {
@@ -75,7 +75,7 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(isset($op['talias'])){
             self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
         }
-        return parent::belongsTo($fi, $namespace."\\".$rt, $rf,$op);
+        return parent::belongsTo($fi, $rt, $rf,$op);
     }
 
     public function hasMany($fi,$rt,$rf,$op=array()) :Relation{
@@ -90,7 +90,7 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(isset($op['namespace'])){
             $namespace = $op['namespace'];
         }
-        return parent::hasManyToMany($fields,$namespace."\\".$intermediateModel,$intermediateFields,$intermediateReferencedFields,$namespace."\\".$referencedModel,$referencedFields,$op);
+        return parent::hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op);
     }
     public function columnMap() {
         return [];
