@@ -34,7 +34,7 @@ class BaseRequest implements RequestInterface
 
     public function getAccessToken()
     {
-        return $this->_getHeader('Access_Token');
+        return $this->_getHeader('Access_Token')?$this->_getHeader('Access_Token'):$this->_data['access_token'];
     }
 
     public function getAccessTokenType()
@@ -43,7 +43,7 @@ class BaseRequest implements RequestInterface
     }
     public function getAppKey()
     {
-        return $this->_getHeader('Appkey');
+        return $this->_getHeader('Appkey')?$this->_getHeader('Appkey'):$this->_data['appkey'];
     }
     public function getAppSecret(){
         return $this->_secret;
@@ -55,12 +55,12 @@ class BaseRequest implements RequestInterface
 
     public function getSign()
     {
-        return $this->_getHeader('Sign');
+        return $this->_getHeader('Sign')?$this->_getHeader('Sign'):$this->_data['sign'];
     }
 
     public function getLocale()
     {
-        return $this->_getHeader('Locale');
+        return $this->_getHeader('Locale')?$this->_getHeader('Locale'):$this->_data['locale'];
     }
 
     /**
@@ -94,6 +94,7 @@ class BaseRequest implements RequestInterface
         $this->_secret = $secret;
         $requestSign = $this->getSign();
         $data        = $this->_data;
+        unset($data['sign']);
         //$data = $this->_unset('sign', $data);
         $sign = self::createSign($secret, $data);
         return $sign === $requestSign;

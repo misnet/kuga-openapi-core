@@ -226,7 +226,7 @@ class Init
             if ($config->path('app.charset')) {
                 $locale .= '.' . $config->path('app.charset');
             }
-            $directory['common'] = __DIR__ . '/langs/_common';
+            $directory['common'] = QING_ROOT_PATH . '/langs/common';
             $translator = new \Qing\Lib\Translator\Gettext(array(
                 'locale' => $locale,
                 'defaultDomain' => 'common',
