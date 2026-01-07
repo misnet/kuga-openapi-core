@@ -44,54 +44,54 @@ abstract class AbstractModel extends \Phalcon\Mvc\Model{
         if(!$this->translator)
             $this->translator    = $this->getDI()->getShared('translator');
     }
-    public function hasOne($fi,$rt,$rf,$op=array()):Relation{
-        $namespace = __NAMESPACE__;
-        if(isset($op['namespace'])){
-            $namespace = $op['namespace'];
-        }
-        self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
-        if(isset($op['join'])){
-            self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
-        }else{
-            self::$_relations[get_called_class()][$fi]['join'] = 'left';
-        }
-        if(isset($op['talias'])){
-            self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
-        }
-        return parent::hasOne($fi, $rt, $rf,$op);
-    }
-
-    public function belongsTo($fi,$rt,$rf,$op=array()):Relation {
-        $namespace = __NAMESPACE__;
-        if(isset($op['namespace'])){
-            $namespace = $op['namespace'];
-        }
-        self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
-        if(isset($op['join'])){
-            self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
-        }else{
-            self::$_relations[get_called_class()][$fi]['join'] = 'left';
-        }
-        if(isset($op['talias'])){
-            self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
-        }
-        return parent::belongsTo($fi, $rt, $rf,$op);
-    }
-
-    public function hasMany($fi,$rt,$rf,$op=array()) :Relation{
-        $namespace = __NAMESPACE__;
-        if(isset($op['namespace'])){
-            $namespace = $op['namespace'];
-        }
-        return parent::hasMany($fi, $namespace."\\".$rt, $rf,$op);
-    }
-    public function hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op=array()):Relation{
-        $namespace = __NAMESPACE__;
-        if(isset($op['namespace'])){
-            $namespace = $op['namespace'];
-        }
-        return parent::hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op);
-    }
+//    public function hasOne($fi,$rt,$rf,$op=array()):Relation{
+//        $namespace = __NAMESPACE__;
+//        if(isset($op['namespace'])){
+//            $namespace = $op['namespace'];
+//        }
+//        self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
+//        if(isset($op['join'])){
+//            self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
+//        }else{
+//            self::$_relations[get_called_class()][$fi]['join'] = 'left';
+//        }
+//        if(isset($op['talias'])){
+//            self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
+//        }
+//        return parent::hasOne($fi, $rt, $rf,$op);
+//    }
+//
+//    public function belongsTo($fi,$rt,$rf,$op=array()):Relation {
+//        $namespace = __NAMESPACE__;
+//        if(isset($op['namespace'])){
+//            $namespace = $op['namespace'];
+//        }
+//        self::$_relations[get_called_class()][$fi]=array('model'=>$namespace."\\".$rt,'id'=>$rf);
+//        if(isset($op['join'])){
+//            self::$_relations[get_called_class()][$fi]['join'] = $op['join'];
+//        }else{
+//            self::$_relations[get_called_class()][$fi]['join'] = 'left';
+//        }
+//        if(isset($op['talias'])){
+//            self::$_relations[get_called_class()][$fi]['talias'] = $op['talias'];
+//        }
+//        return parent::belongsTo($fi, $rt, $rf,$op);
+//    }
+//
+//    public function hasMany($fi,$rt,$rf,$op=array()) :Relation{
+//        $namespace = __NAMESPACE__;
+//        if(isset($op['namespace'])){
+//            $namespace = $op['namespace'];
+//        }
+//        return parent::hasMany($fi, $rt, $rf,$op);
+//    }
+//    public function hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op=array()):Relation{
+//        $namespace = __NAMESPACE__;
+//        if(isset($op['namespace'])){
+//            $namespace = $op['namespace'];
+//        }
+//        return parent::hasManyToMany($fields,$intermediateModel,$intermediateFields,$intermediateReferencedFields,$referencedModel,$referencedFields,$op);
+//    }
     public function columnMap() {
         return [];
     }

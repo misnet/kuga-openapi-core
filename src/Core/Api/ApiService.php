@@ -133,14 +133,14 @@ class ApiService
     {
         // 验证app key
         $config = self::$di->get('config');
+        $apiKeyDisable = $config->path('app.apiKeyDisable');
         try {
             self::$_appKey = $req->getAppKey();
 
             self::$_appSecret = '';
 
             self::beforeInvoke($req->getMethod(), $req->getData());
-
-            if ( ! self::$_appKey) {
+            if ( !$apiKeyDisable && ! self::$_appKey) {
                 return self::_responseError(
                     ApiException::$EXCODE_INVALID_CLIENT
                 );
@@ -149,7 +149,7 @@ class ApiService
             $apiKeys = self::getApiKeys();
             //self::$di->getShared('translator')->setLocale(LC_MESSAGES, $req->getLocale());
 
-            if ( ! array_key_exists(self::$_appKey, $apiKeys)) {
+            if (!$apiKeyDisable && ! array_key_exists(self::$_appKey, $apiKeys)) {
                 return self::_responseError(
                     ApiException::$EXCODE_INVALID_CLIENT
                 );
