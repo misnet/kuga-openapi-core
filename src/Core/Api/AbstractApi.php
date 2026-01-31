@@ -16,7 +16,7 @@ use Kuga\Core\GlobalVar;
 use Kuga\Core\Api\Exception as ApiException;
 
 use Kuga\Core\Service\JWTService;
-use Phalcon\Config;
+use Phalcon\Config\Config;
 use Phalcon\Http\Request as HttpClientRequest;
 
 abstract class AbstractApi extends AbstractService
