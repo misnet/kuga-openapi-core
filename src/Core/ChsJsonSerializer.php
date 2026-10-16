@@ -18,7 +18,7 @@ class ChsJsonSerializer implements SerializerInterface{
     public function setData($data):void{
         $this->data = $data;
     }
-    public function unserialize( $data){
+    public function unserialize($data): void{
         $d = \json_decode($data,true);
         if(\json_last_error() === \JSON_ERROR_NONE){
             $this->issuccess = false;

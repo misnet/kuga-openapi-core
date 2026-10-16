@@ -572,7 +572,12 @@ class ApiService
         $time || $time = time();
         //为保证一个accessToken在所有系统中通用，不能以appKey作为加密KEY
         //$txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
-        $txt  = $crypt->decryptBase64($data, md5(self::$cryptToken),true);
+        //Phalcon 5.15+ 对空串或过短的输入直接抛 InvalidDecryptLength，旧版返回乱码后由下面 unserialize 判为无效
+        try {
+            $txt  = $crypt->decryptBase64($data, md5(self::$cryptToken),true);
+        } catch (\Phalcon\Encryption\Crypt\Exception\Exception $e) {
+            return null;
+        }
         $data = unserialize($txt);
         if ($time <= $data['time']) {
             return $data['data'];
