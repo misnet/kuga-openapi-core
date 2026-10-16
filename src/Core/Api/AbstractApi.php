@@ -357,6 +357,53 @@ abstract class AbstractApi extends AbstractService
     }
 
     /**
+     * Return the default value of the given value.
+     * @template TValue
+     * @template TReturn
+     *
+     * @param (Closure(TValue):TReturn)|TValue $value
+     * @return ($value is Closure ? TReturn : TValue)
+     */
+    static private function myValue(mixed $value, ...$args)
+    {
+        return $value instanceof \Closure ? $value(...$args) : $value;
+    }
+
+    /**
+     * Gets the value of an environment variable.
+     *
+     * @param string $key
+     * @param null|mixed $default
+     */
+   static private function myenv($key, $default = null)
+    {
+        $value = getenv($key);
+        if ($value === false) {
+            return self::myValue($default);
+        }
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'empty':
+            case '(empty)':
+                return '';
+            case 'null':
+            case '(null)':
+                return null;
+        }
+        if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
+            return substr($value, 1, -1);
+        }
+        return $value;
+    }
+    protected function getJwtTokenSecret(){
+        return self::myenv('JWT_TOKEN', $this->_di->get('config')->path('app.jwtTokenSecret'));
+    }
+    /**
      * 创建JWT
      * @param $data
      * @param int $lifetime
@@ -364,14 +411,14 @@ abstract class AbstractApi extends AbstractService
      */
     protected function _createJsonWebToken($data, $lifetime = 0)
     {
-        $secret = $this->_di->get('config')->path('app.jwtTokenSecret');
+        $secret = $this->getJwtTokenSecret();
         $jwtService = new JWTService();
         $jwtService->setSecret($secret);
         return $jwtService->createToken($data,$lifetime);
     }
     protected function _getInfoFromJsonWebToken($accessToken, $key = '',$throwError=true)
     {
-        $secret = $this->_di->get('config')->path('app.jwtTokenSecret');
+        $secret = $this->getJwtTokenSecret();
         $jwtService = new JWTService();
         $jwtService->setSecret($secret);
         $at =  $jwtService->validate($accessToken);

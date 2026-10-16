@@ -33,6 +33,10 @@ class ApiService
     private static $_appSecret;
 
     private static $_lifetime = 864000;
+    private static $cryptToken = 'github.com/misnet';
+    static function setCryptToken($token){
+        self::$cryptToken = $token;
+    }
 
     static public function setLifetime($t)
     {
@@ -259,7 +263,7 @@ class ApiService
     {
         $cache   = self::$di->getShared('cache');
 
-        $cacheKey= 'API_METHOD_LIST_'.self::$_appKey.'_'.$_SERVER['HTTP_HOST'];
+        $cacheKey= 'API_METHOD_LIST_'.self::$_appKey.'_'.isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:'CLI';
         try{
             $data    = $cache->get($cacheKey);
         }catch (\Exception $e){
@@ -548,7 +552,7 @@ class ApiService
         $data = serialize($data);
 
         //$txt  = $crypt->encryptBase64($data, md5(self::$_appKey),true);
-        $txt  = $crypt->encryptBase64($data, md5("github.com/misnet"),true);
+        $txt  = $crypt->encryptBase64($data, md5(self::$cryptToken),true);
 
         return $txt;
     }
@@ -568,7 +572,7 @@ class ApiService
         $time || $time = time();
         //为保证一个accessToken在所有系统中通用，不能以appKey作为加密KEY
         //$txt  = $crypt->decryptBase64($data, md5(self::$_appKey),true);
-        $txt  = $crypt->decryptBase64($data, md5("github.com/misnet"),true);
+        $txt  = $crypt->decryptBase64($data, md5(self::$cryptToken),true);
         $data = unserialize($txt);
         if ($time <= $data['time']) {
             return $data['data'];
