@@ -10,7 +10,7 @@
         "qcloudsms/qcloudsms_php": "0.1.*",
         "alibabacloud/client": ">=1.5.30",
         "phpoffice/phpspreadsheet": ">=1.9.0",
-        "guzzlehttp/guzzle": "7.4.5",
+        "guzzlehttp/guzzle": "^7.15.2",
         "josegonzalez/dotenv": "4.0.0"
     },
     "autoload": {
